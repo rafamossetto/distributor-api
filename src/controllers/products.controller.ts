@@ -1,4 +1,6 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, HttpException, InternalServerErrorException, Logger, Post } from '@nestjs/common';
+import { HydratedDocument } from 'mongoose';
+import { ProductDto } from 'src/dto';
 import { Product } from 'src/schemas';
 import { ProductsService } from 'src/services';
 
@@ -10,13 +12,24 @@ export class ProductsController {
   ) { }
 
   @Get()
-  async getAll(): Promise<Product[]> {
-    const source = 'ProductsController -> getAll()';
+  async getAllProducts(): Promise<Product[]> {
+    const source = 'ProductsController -> getAllProducts()';
 
     try {
-      const allProducts = await this.productsService.getAllProducts();
+      this.logger.log({
+        message: '[REQ] GET /products - getAllProducts()',
+        source,
+      });
 
-      return allProducts;
+      const response = await this.productsService.getAll();
+
+      this.logger.log({
+        message: '[RES] GET /products - getAllProducts()',
+        response,
+        source,
+      });
+
+      return response;
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -26,5 +39,49 @@ export class ProductsController {
       });
       throw error;
     }
+  };
+
+  @Post()
+  async createProduct(
+    @Body() productDto: ProductDto,
+  ): Promise<HydratedDocument<Product>> {
+    const source = 'ProductsController -> createProduct()';
+
+    try {
+      this.logger.log({
+        message: '[REQ] POST /products - createProduct()',
+        source,
+      });
+
+      const response = await this.productsService.create(productDto);
+
+      this.logger.log({
+        message: '[RES] POST /products - createProduct()',
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
+    }
+  };
+
+
+  @Delete()
+  async deleteProducts(
+    @Body() body,
+  ) {
+
+    const { admin } = body;
+    if (!admin) throw new ForbiddenException('Not admin access');
+
+    return await this.productsService.deleteAll();    
   }
 }
