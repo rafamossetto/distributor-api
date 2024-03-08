@@ -82,6 +82,6 @@ export class ProductsController {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access');
 
-    return await this.productsService.deleteAll();    
+    return this.productsService.deleteAll();
   }
 }
