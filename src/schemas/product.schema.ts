@@ -25,7 +25,7 @@ export class Product {
       message: 'At least one price is mandatory',
     },
   })
-  prices: PricesList[];
+  prices: [PricesList];
 };
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
