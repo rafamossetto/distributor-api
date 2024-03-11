@@ -5,7 +5,8 @@ import { PricesList } from './';
 export type ProductDocument = HydratedDocument<Product>;
 
 // Validator Function
-const pricesValidator = (prices: number[]) => prices.length > 0;
+const pricesValidator = (prices: number[]) =>
+  Array.isArray(prices) && prices.length && prices.every(price => typeof price === 'number');
 
 @Schema()
 export class Product {
@@ -13,7 +14,10 @@ export class Product {
   name: string;
 
   @Prop({ required: true })
-  code: number;
+  code: number;e
+
+  @Prop({ required: true })
+  typ: number;
 
   @Prop({ required: true })
   description: string;
@@ -22,7 +26,7 @@ export class Product {
     required: true,
     validate: {
       validator: pricesValidator,
-      message: 'At least one price is mandatory',
+      message: 'Must be a list of numbers, at least one price',
     },
   })
   prices: [PricesList];

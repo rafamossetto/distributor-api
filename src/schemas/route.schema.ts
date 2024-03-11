@@ -3,13 +3,15 @@ import { HydratedDocument } from 'mongoose';
 
 export type RouteDocument = HydratedDocument<Route>;
 
+type RouteStatus = 'open' | 'closed' | 'unselled';
+
 @Schema()
 export class Route {
-  @Prop()
-  id: number;
+  @Prop({ required: true })
+  client: string;
 
-  @Prop()
-  name: number;
+  @Prop({ required: true })
+  status: RouteStatus;
 
   @Prop({ type: Date, required: true })
   date: Date;
