@@ -3,17 +3,21 @@ import { HydratedDocument } from 'mongoose';
 
 export type RouteDocument = HydratedDocument<Route>;
 
-type RouteStatus = 'open' | 'closed' | 'unselled';
+export enum RouteStatusEnum {
+  OPEN = 'open',
+  CLOSED = 'closed',
+  UNSOLD = 'unsold',
+};
 
-@Schema()
+@Schema({ versionKey: false })
 export class Route {
   @Prop({ required: true })
   client: string;
 
-  @Prop({ required: true })
-  status: RouteStatus;
+  @Prop({ required: true, enum: RouteStatusEnum })
+  status: RouteStatusEnum;
 
-  @Prop({ type: Date, required: true })
+  @Prop({ required: true, type: Date })
   date: Date;
 }
 

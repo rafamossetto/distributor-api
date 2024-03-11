@@ -1,23 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { PricesList } from './';
 
 export type ProductDocument = HydratedDocument<Product>;
 
+export enum ProductMeasurementEnum {
+  KILOGRAM = 'kilogram',
+  UNIT = 'unit',
+}
+
 // Validator Function
 const pricesValidator = (prices: number[]) =>
-  Array.isArray(prices) && prices.length && prices.every(price => typeof price === 'number');
+  prices.length && prices.every(price => typeof price === 'number');
 
-@Schema()
+@Schema({ versionKey: false })
 export class Product {
   @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
-  code: number;e
+  code: number;
 
-  @Prop({ required: true })
-  typ: number;
+  @Prop({ required: true, enum: ProductMeasurementEnum })
+  measurement: ProductMeasurementEnum;
 
   @Prop({ required: true })
   description: string;
@@ -29,7 +33,7 @@ export class Product {
       message: 'Must be a list of numbers, at least one price',
     },
   })
-  prices: [PricesList];
+  prices: number[];
 };
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -1,30 +1,30 @@
 import { Body, Controller, Delete, ForbiddenException, Get, HttpException, Logger, Post } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
-import { ProductDto } from 'src/dto';
-import { Product } from 'src/schemas';
-import { ProductsService } from 'src/services';
+import { ClientDto } from 'src/dto/client.dto';
+import { Client } from 'src/schemas';
+import { ClientsService } from 'src/services';
 
-@Controller('products')
-export class ProductsController {
+@Controller('clients')
+export class ClientsController {
   constructor(
-    private readonly productsService: ProductsService,
-    private readonly logger: Logger = new Logger(ProductsController.name),
+    private readonly clientsService: ClientsService,
+    private readonly logger: Logger = new Logger(ClientsController.name),
   ) { }
 
   @Get()
-  async getAllProducts(): Promise<Product[]> {
-    const source = 'ProductsController -> getAllProducts()';
+  async getAllClients(): Promise<Client[]> {
+    const source = 'ClientsController -> getAllClients()';
 
     try {
       this.logger.log({
-        message: '[REQ] GET /products - getAllProducts()',
+        message: '[REQ] GET /clients - getAllClients()',
         source,
       });
 
-      const response = await this.productsService.getAll();
+      const response = await this.clientsService.getAll();
 
       this.logger.log({
-        message: '[RES] GET /products - getAllProducts()',
+        message: '[RES] GET /clients - getAllClients()',
         response,
         length: response?.length,
         source,
@@ -43,22 +43,22 @@ export class ProductsController {
   };
 
   @Post()
-  async createProduct(
-    @Body() productDto: ProductDto,
-  ): Promise<HydratedDocument<Product>> {
-    const source = 'ProductsController -> createProduct()';
+  async createClient(
+    @Body() clientDto: ClientDto,
+  ): Promise<HydratedDocument<Client>> {
+    const source = 'ClientsController -> createClient()';
 
     try {
       this.logger.log({
-        message: '[REQ] POST /products - createProduct()',
+        message: '[REQ] POST /clients - createClient()',
         source,
-        body: productDto,
+        body: clientDto,
       });
 
-      const response = await this.productsService.create(productDto);
+      const response = await this.clientsService.create(clientDto);
 
       this.logger.log({
-        message: '[RES] POST /products - createProduct()',
+        message: '[RES] POST /clients - createClient()',
         response,
         source,
       });
@@ -77,13 +77,13 @@ export class ProductsController {
 
 
   @Delete()
-  async deleteProducts(
+  async deleteClients(
     @Body() body: { admin: boolean },
   ) {
 
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 
-    return this.productsService.deleteAll();
+    return this.clientsService.deleteAll();
   }
 }

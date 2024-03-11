@@ -7,7 +7,9 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3000);
-  Logger.log(`[SERVER] Listening on port: ${PORT}`);
+
+  await app.listen(PORT);
+
+  Logger.log(`[SERVER] Welcome! ready on port: ${PORT}`);
 }
 bootstrap();

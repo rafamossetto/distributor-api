@@ -2,8 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export type PricesListDocument = HydratedDocument<PricesList>;
-
-@Schema()
+ // todo: review
+@Schema({ versionKey: false })
 export class PricesList {
   // Name of list prop
   @Prop({ required: true })

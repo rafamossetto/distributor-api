@@ -9,13 +9,15 @@ import { Product } from 'src/schemas';
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
-    ) {}
+  ) { }
+
+  private readonly GET_ALL_SORT_PARAM = 'name';
 
   getAll() {
-    return this.productModel.find().exec();
+    return this.productModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
   };
 
-  create(createProductDto: ProductDto): Promise<HydratedDocument<Product>>  {
+  create(createProductDto: ProductDto): Promise<HydratedDocument<Product>> {
     return this.productModel.create(createProductDto);
   };
 

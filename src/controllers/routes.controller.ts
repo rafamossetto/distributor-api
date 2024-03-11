@@ -1,30 +1,30 @@
 import { Body, Controller, Delete, ForbiddenException, Get, HttpException, Logger, Post } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
-import { ProductDto } from 'src/dto';
-import { Product } from 'src/schemas';
-import { ProductsService } from 'src/services';
+import { RouteDto } from 'src/dto';
+import { Route } from 'src/schemas';
+import { RoutesService } from 'src/services';
 
-@Controller('products')
-export class ProductsController {
+@Controller('routes')
+export class RoutesController {
   constructor(
-    private readonly productsService: ProductsService,
-    private readonly logger: Logger = new Logger(ProductsController.name),
+    private readonly routesService: RoutesService,
+    private readonly logger: Logger = new Logger(RoutesController.name),
   ) { }
 
   @Get()
-  async getAllProducts(): Promise<Product[]> {
-    const source = 'ProductsController -> getAllProducts()';
+  async getAllRoutes(): Promise<Route[]> {
+    const source = 'RoutesController -> getAllRoutes()';
 
     try {
       this.logger.log({
-        message: '[REQ] GET /products - getAllProducts()',
+        message: '[REQ] GET /routes - getAllRoutes()',
         source,
       });
 
-      const response = await this.productsService.getAll();
+      const response = await this.routesService.getAll();
 
       this.logger.log({
-        message: '[RES] GET /products - getAllProducts()',
+        message: '[RES] GET /routes - getAllRoutes()',
         response,
         length: response?.length,
         source,
@@ -43,22 +43,22 @@ export class ProductsController {
   };
 
   @Post()
-  async createProduct(
-    @Body() productDto: ProductDto,
-  ): Promise<HydratedDocument<Product>> {
-    const source = 'ProductsController -> createProduct()';
+  async createRoute(
+    @Body() routeDto: RouteDto,
+  ): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesController -> createRoute()';
 
     try {
       this.logger.log({
-        message: '[REQ] POST /products - createProduct()',
+        message: '[REQ] POST /routes - createRoute()',
         source,
-        body: productDto,
+        body: routeDto,
       });
 
-      const response = await this.productsService.create(productDto);
+      const response = await this.routesService.create(routeDto);
 
       this.logger.log({
-        message: '[RES] POST /products - createProduct()',
+        message: '[RES] POST /routes - createRoute()',
         response,
         source,
       });
@@ -84,6 +84,6 @@ export class ProductsController {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 
-    return this.productsService.deleteAll();
+    return this.routesService.deleteAll();
   }
 }
