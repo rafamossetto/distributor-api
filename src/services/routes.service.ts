@@ -10,9 +10,9 @@ export class RoutesService {
     @InjectModel(Route.name) private routesModel: Model<Route>,
   ) { }
 
-  private readonly GET_ALL_SORT_PARAM = 'name';
+  private readonly GET_ALL_SORT_PARAM = 'client';
 
-  getAll() {
+  getAll(): Promise<HydratedDocument<Route>[]> {
     return this.routesModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
   };
 

@@ -13,7 +13,7 @@ export class ProductsService {
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  getAll() {
+  getAll(): Promise<HydratedDocument<Product>[]> {
     return this.productModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
   };
 

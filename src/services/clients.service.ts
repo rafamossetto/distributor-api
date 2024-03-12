@@ -12,7 +12,7 @@ export class ClientsService {
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  getAll() {
+  getAll(): Promise<HydratedDocument<Client>[]> {
     return this.clientModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
   };
 
