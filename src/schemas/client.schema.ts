@@ -9,6 +9,9 @@ export class Client {
   name: string;
 
   @Prop({ required: true })
+  type: string;
+
+  @Prop({ required: true })
   address: string;
 
   @Prop({ required: true })

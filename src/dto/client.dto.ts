@@ -7,6 +7,10 @@ export class ClientDto {
 
   @IsString()
   @IsNotEmpty()
+  type: string;
+
+  @IsString()
+  @IsNotEmpty()
   address: string;
 
   @IsPhoneNumber()
