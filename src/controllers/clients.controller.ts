@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, ForbiddenException, Get, HttpException, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpException,
+  Logger,
+  Post,
+} from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
 import { ClientDto } from 'src/dto/client.dto';
 import { Client } from 'src/schemas';
@@ -9,7 +18,7 @@ export class ClientsController {
   constructor(
     private readonly clientsService: ClientsService,
     private readonly logger: Logger = new Logger(ClientsController.name),
-  ) { }
+  ) {}
 
   @Get()
   async getAllClients(): Promise<Client[]> {
@@ -40,7 +49,7 @@ export class ClientsController {
       });
       throw error;
     }
-  };
+  }
 
   @Post()
   async createClient(
@@ -73,14 +82,10 @@ export class ClientsController {
       });
       throw new HttpException(error.message, 500);
     }
-  };
-
+  }
 
   @Delete()
-  async deleteClients(
-    @Body() body: { admin: boolean },
-  ) {
-
+  async deleteClients(@Body() body: { admin: boolean }) {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 

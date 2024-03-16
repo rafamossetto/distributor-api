@@ -10,7 +10,7 @@ export enum ProductMeasurementEnum {
 
 // Validator Function
 const pricesValidator = (prices: number[]) =>
-  prices.length && prices.every(price => typeof price === 'number');
+  prices.length && prices.every((price) => typeof price === 'number');
 
 @Schema({ versionKey: false })
 export class Product {
@@ -34,6 +34,6 @@ export class Product {
     },
   })
   prices: number[];
-};
+}
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

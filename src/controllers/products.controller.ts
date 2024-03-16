@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, ForbiddenException, Get, HttpException, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpException,
+  Logger,
+  Post,
+} from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
 import { ProductDto } from 'src/dto';
 import { Product } from 'src/schemas';
@@ -9,7 +18,7 @@ export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
     private readonly logger: Logger = new Logger(ProductsController.name),
-  ) { }
+  ) {}
 
   @Get()
   async getAllProducts(): Promise<Product[]> {
@@ -40,7 +49,7 @@ export class ProductsController {
       });
       throw error;
     }
-  };
+  }
 
   @Post()
   async createProduct(
@@ -73,14 +82,10 @@ export class ProductsController {
       });
       throw new HttpException(error.message, 500);
     }
-  };
-
+  }
 
   @Delete()
-  async deleteProducts(
-    @Body() body: { admin: boolean },
-  ) {
-
+  async deleteProducts(@Body() body: { admin: boolean }) {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 

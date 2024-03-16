@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, ForbiddenException, Get, HttpException, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpException,
+  Logger,
+  Post,
+} from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
 import { RouteDto } from 'src/dto';
 import { Route } from 'src/schemas';
@@ -9,7 +18,7 @@ export class RoutesController {
   constructor(
     private readonly routesService: RoutesService,
     private readonly logger: Logger = new Logger(RoutesController.name),
-  ) { }
+  ) {}
 
   @Get()
   async getAllRoutes(): Promise<Route[]> {
@@ -40,7 +49,7 @@ export class RoutesController {
       });
       throw error;
     }
-  };
+  }
 
   @Post()
   async createRoute(
@@ -73,14 +82,10 @@ export class RoutesController {
       });
       throw new HttpException(error.message, 500);
     }
-  };
-
+  }
 
   @Delete()
-  async deleteProducts(
-    @Body() body: { admin: boolean },
-  ) {
-
+  async deleteProducts(@Body() body: { admin: boolean }) {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 

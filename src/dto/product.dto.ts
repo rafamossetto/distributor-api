@@ -1,4 +1,11 @@
-import { IsNumberString, IsNotEmpty, IsEnum, IsArray, IsNumber, IsString } from 'class-validator';
+import {
+  IsNumberString,
+  IsNotEmpty,
+  IsEnum,
+  IsArray,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 import { ProductMeasurementEnum } from 'src/schemas';
 
 export class ProductDto {

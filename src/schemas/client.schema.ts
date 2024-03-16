@@ -16,6 +16,6 @@ export class Client {
 
   @Prop({ required: true })
   phone: string;
-};
+}
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

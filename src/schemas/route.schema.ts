@@ -7,7 +7,7 @@ export enum RouteStatusEnum {
   OPEN = 'open',
   CLOSED = 'closed',
   UNSOLD = 'unsold',
-};
+}
 
 @Schema({ versionKey: false })
 export class Route {

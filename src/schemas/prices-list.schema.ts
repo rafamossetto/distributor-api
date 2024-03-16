@@ -19,6 +19,6 @@ export class PricesList {
 
   @Prop({ required: true })
   percent: number;
-};
+}
 
 export const PricesListSchema = SchemaFactory.createForClass(PricesList);
