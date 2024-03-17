@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { HydratedDocument, Model } from 'mongoose';
+import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { RouteDto } from 'src/dto';
 import { Route } from 'src/schemas';
 
@@ -10,8 +10,19 @@ export class RoutesService {
 
   private readonly GET_ALL_SORT_PARAM = 'client';
 
-  getAll(): Promise<HydratedDocument<Route>[]> {
-    return this.routesModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+  getAll({
+    startDate, endDate
+  }: { startDate?: Date, endDate?: Date }): Promise<HydratedDocument<Route>[]> {
+
+    const datesFilter: { $gte?: Date, $lte?: Date } = {};
+    const filterParams: FilterQuery<Route> = {};
+
+    startDate && (datesFilter.$gte = startDate);
+    endDate && (datesFilter.$lte = endDate);
+
+    Object.keys(datesFilter).length && (filterParams.date = datesFilter);
+
+    return this.routesModel.find(filterParams).sort(this.GET_ALL_SORT_PARAM).exec();
   }
 
   create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {

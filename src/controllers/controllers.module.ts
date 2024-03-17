@@ -3,6 +3,7 @@ import {
   ProductsController,
   RoutesController,
   ClientsController,
+  FilesController,
 } from '../controllers';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from '../schemas/product.schema';
@@ -27,6 +28,6 @@ import { Client, ClientSchema, Route, RouteSchema } from 'src/schemas';
     ]),
   ],
   providers: [ProductsService, ClientsService, RoutesService, Logger],
-  controllers: [ProductsController, RoutesController, ClientsController],
+  controllers: [ProductsController, RoutesController, ClientsController, FilesController],
 })
 export class ControllersModule {}

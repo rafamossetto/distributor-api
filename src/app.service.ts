@@ -7,10 +7,11 @@ export class AppService {
     status: 200,
   };
 
-  getHello() {
+  getHello(ip) {
     Logger.log({
       message: '[RES] GET /health',
       response: this.HEALTH_RESPONSE,
+      ip
     });
 
     return this.HEALTH_RESPONSE;

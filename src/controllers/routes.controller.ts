@@ -7,6 +7,7 @@ import {
   HttpException,
   Logger,
   Post,
+  Query,
 } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
 import { RouteDto } from 'src/dto';
@@ -21,16 +22,20 @@ export class RoutesController {
   ) {}
 
   @Get()
-  async getAllRoutes(): Promise<Route[]> {
+  async getAllRoutes(
+    @Query() params?: { startDate?: Date, endDate?: Date },
+  ): Promise<Route[]> {
     const source = 'RoutesController -> getAllRoutes()';
 
-    try {
+      const { startDate, endDate } = params;
+
       this.logger.log({
         message: '[REQ] GET /routes - getAllRoutes()',
+        params,
         source,
       });
 
-      const response = await this.routesService.getAll();
+      const response = await this.routesService.getAll({ startDate, endDate });
 
       this.logger.log({
         message: '[RES] GET /routes - getAllRoutes()',
@@ -40,15 +45,6 @@ export class RoutesController {
       });
 
       return response;
-    } catch (error) {
-      this.logger.error({
-        message: `Error in ${source}`,
-        error,
-        errorString: error.toString(),
-        source,
-      });
-      throw error;
-    }
   }
 
   @Post()
