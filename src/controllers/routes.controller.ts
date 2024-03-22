@@ -23,7 +23,7 @@ export class RoutesController {
 
   @Get()
   async getAllRoutes(
-    @Query() params?: { startDate?: Date, endDate?: Date },
+    @Query() params?: { startDate?: string, endDate?: string },
   ): Promise<Route[]> {
     const source = 'RoutesController -> getAllRoutes()';
 

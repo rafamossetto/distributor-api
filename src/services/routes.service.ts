@@ -12,13 +12,16 @@ export class RoutesService {
 
   getAll({
     startDate, endDate
-  }: { startDate?: Date, endDate?: Date }): Promise<HydratedDocument<Route>[]> {
+  }: { startDate?: string, endDate?: string }): Promise<HydratedDocument<Route>[]> {
 
     const datesFilter: { $gte?: Date, $lte?: Date } = {};
     const filterParams: FilterQuery<Route> = {};
+    
+    const startDateInstance = new Date(startDate);
+    const endDateInstance = new Date(endDate);
 
-    startDate && (datesFilter.$gte = startDate);
-    endDate && (datesFilter.$lte = endDate);
+    startDate && (datesFilter.$gte = startDateInstance);
+    endDate && (datesFilter.$lte = endDateInstance);
 
     Object.keys(datesFilter).length && (filterParams.date = datesFilter);
 
