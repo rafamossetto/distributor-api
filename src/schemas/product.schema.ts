@@ -23,7 +23,7 @@ export class Product {
   @Prop({ required: true, enum: ProductMeasurementEnum })
   measurement: ProductMeasurementEnum;
 
-  @Prop({ required: true })
+  @Prop()
   description: string;
 
   @Prop({

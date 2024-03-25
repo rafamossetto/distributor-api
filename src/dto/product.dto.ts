@@ -5,6 +5,7 @@ import {
   IsArray,
   IsNumber,
   IsString,
+  IsOptional,
 } from 'class-validator';
 import { ProductMeasurementEnum } from 'src/schemas';
 
@@ -20,7 +21,7 @@ export class ProductDto {
   @IsEnum(ProductMeasurementEnum)
   measurement: ProductMeasurementEnum;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   description: string;
 
