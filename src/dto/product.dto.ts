@@ -1,5 +1,4 @@
 import {
-  IsNumberString,
   IsNotEmpty,
   IsEnum,
   IsArray,
@@ -13,10 +12,6 @@ export class ProductDto {
   @IsNotEmpty()
   @IsString()
   name: string;
-
-  @IsNotEmpty()
-  @IsNumberString()
-  code: number;
 
   @IsEnum(ProductMeasurementEnum)
   measurement: ProductMeasurementEnum;

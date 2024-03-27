@@ -18,70 +18,50 @@ export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
     private readonly logger: Logger = new Logger(ProductsController.name),
-  ) {}
+  ) { }
 
   @Get()
   async getAllProducts(): Promise<Product[]> {
     const source = 'ProductsController -> getAllProducts()';
 
-    try {
-      this.logger.log({
-        message: '[REQ] GET /products - getAllProducts()',
-        source,
-      });
+    this.logger.log({
+      message: '[REQ] GET /products - getAllProducts()',
+      source,
+    });
 
-      const response = await this.productsService.getAll();
+    const response = await this.productsService.getAll();
 
-      this.logger.log({
-        message: '[RES] GET /products - getAllProducts()',
-        response,
-        length: response?.length,
-        source,
-      });
+    this.logger.log({
+      message: '[RES] GET /products - getAllProducts()',
+      response,
+      length: response?.length,
+      source,
+    });
 
-      return response;
-    } catch (error) {
-      this.logger.error({
-        message: `Error in ${source}`,
-        error,
-        errorString: error.toString(),
-        source,
-      });
-      throw error;
-    }
+    return response;
   }
 
   @Post()
   async createProduct(
     @Body() productDto: ProductDto,
-  ): Promise<HydratedDocument<Product>> {
+  ) {
     const source = 'ProductsController -> createProduct()';
 
-    try {
-      this.logger.log({
-        message: '[REQ] POST /products - createProduct()',
-        source,
-        body: productDto,
-      });
+    this.logger.log({
+      message: '[REQ] POST /products - createProduct()',
+      source,
+      body: productDto,
+    });
 
-      const response = await this.productsService.create(productDto);
+    const response = await this.productsService.create(productDto);
 
-      this.logger.log({
-        message: '[RES] POST /products - createProduct()',
-        response,
-        source,
-      });
+    this.logger.log({
+      message: '[RES] POST /products - createProduct()',
+      response,
+      source,
+    });
 
-      return response;
-    } catch (error) {
-      this.logger.error({
-        message: `Error in ${source}`,
-        error,
-        errorString: error.toString(),
-        source,
-      });
-      throw new HttpException(error.message, 500);
-    }
+    return response;
   }
 
   @Delete()
