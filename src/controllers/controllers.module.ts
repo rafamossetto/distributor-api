@@ -8,7 +8,12 @@ import {
 } from '../controllers';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from '../schemas/product.schema';
-import { ClientsService, PricesListService, ProductsService, RoutesService } from 'src/services';
+import {
+  ClientsService,
+  PricesListService,
+  ProductsService,
+  RoutesService,
+} from 'src/services';
 import {
   Client,
   ClientSchema,
@@ -39,13 +44,19 @@ import {
       },
     ]),
   ],
-  providers: [Logger, ProductsService, ClientsService, RoutesService, PricesListService],
+  providers: [
+    Logger,
+    ProductsService,
+    ClientsService,
+    RoutesService,
+    PricesListService,
+  ],
   controllers: [
     ProductsController,
     RoutesController,
     ClientsController,
     FilesController,
-    PricesListController
+    PricesListController,
   ],
 })
 export class ControllersModule {}

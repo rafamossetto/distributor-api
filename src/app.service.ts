@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
@@ -7,13 +7,7 @@ export class AppService {
     status: 200,
   };
 
-  getHello(ip: string) {
-    Logger.log({
-      message: '[RES] GET /health',
-      response: this.HEALTH_RESPONSE,
-      ip,
-    });
-
+  health() {
     return this.HEALTH_RESPONSE;
   }
 }
