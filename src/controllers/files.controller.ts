@@ -4,7 +4,6 @@ import {
   Get,
   HttpException,
   Logger,
-  Post,
   Render,
 } from '@nestjs/common';
 
@@ -12,7 +11,7 @@ import {
 export class FilesController {
   constructor(
     private readonly logger: Logger = new Logger(FilesController.name),
-  ) { }
+  ) {}
 
   @Get('buyOrder')
   @Render('buyOrder')
@@ -179,8 +178,8 @@ export class FilesController {
             measurement: 'botellas',
             description: 'Vino Tinto Reserva',
             price: 2500,
-          }
-        ]
+          },
+        ],
       };
 
       // return response;

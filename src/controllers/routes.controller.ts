@@ -4,7 +4,6 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  HttpException,
   Logger,
   Post,
   Query,
@@ -19,11 +18,11 @@ export class RoutesController {
   constructor(
     private readonly routesService: RoutesService,
     private readonly logger: Logger = new Logger(RoutesController.name),
-  ) { }
+  ) {}
 
   @Get()
   async getAllRoutes(
-    @Query() params?: { startDate?: string, endDate?: string },
+    @Query() params?: { startDate?: string; endDate?: string },
   ): Promise<Route[]> {
     const source = 'RoutesController -> getAllRoutes()';
 
@@ -71,7 +70,7 @@ export class RoutesController {
   }
 
   @Delete()
-  async deleteProducts(@Body() body: { admin: boolean }) {
+  async deleteRoutes(@Body() body: { admin: boolean }) {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 

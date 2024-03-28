@@ -9,7 +9,7 @@ export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
     private readonly logger: Logger = new Logger(ProductsService.name),
-  ) { }
+  ) {}
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
@@ -25,10 +25,12 @@ export class ProductsService {
         source,
       });
       throw error;
-    };
+    }
   }
 
-  async create(createProductDto: ProductDto): Promise<HydratedDocument<Product>> {
+  async create(
+    createProductDto: ProductDto,
+  ): Promise<HydratedDocument<Product>> {
     const source = 'ProductsService -> create()';
 
     try {
@@ -45,7 +47,7 @@ export class ProductsService {
         source,
       });
       throw error;
-    };
+    }
   }
 
   deleteAll() {

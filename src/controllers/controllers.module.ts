@@ -4,11 +4,19 @@ import {
   RoutesController,
   ClientsController,
   FilesController,
+  PricesListController,
 } from '../controllers';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from '../schemas/product.schema';
-import { ClientsService, ProductsService, RoutesService } from 'src/services';
-import { Client, ClientSchema, Route, RouteSchema } from 'src/schemas';
+import { ClientsService, PricesListService, ProductsService, RoutesService } from 'src/services';
+import {
+  Client,
+  ClientSchema,
+  Route,
+  RouteSchema,
+  PricesList,
+  PricesListSchema,
+} from 'src/schemas';
 
 @Module({
   imports: [
@@ -25,9 +33,19 @@ import { Client, ClientSchema, Route, RouteSchema } from 'src/schemas';
         name: Route.name,
         schema: RouteSchema,
       },
+      {
+        name: PricesList.name,
+        schema: PricesListSchema,
+      },
     ]),
   ],
-  providers: [ProductsService, ClientsService, RoutesService, Logger],
-  controllers: [ProductsController, RoutesController, ClientsController, FilesController],
+  providers: [Logger, ProductsService, ClientsService, RoutesService, PricesListService],
+  controllers: [
+    ProductsController,
+    RoutesController,
+    ClientsController,
+    FilesController,
+    PricesListController
+  ],
 })
 export class ControllersModule {}

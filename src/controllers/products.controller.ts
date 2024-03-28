@@ -4,11 +4,9 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  HttpException,
   Logger,
   Post,
 } from '@nestjs/common';
-import { HydratedDocument } from 'mongoose';
 import { ProductDto } from 'src/dto';
 import { Product } from 'src/schemas';
 import { ProductsService } from 'src/services';
@@ -18,7 +16,7 @@ export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
     private readonly logger: Logger = new Logger(ProductsController.name),
-  ) { }
+  ) {}
 
   @Get()
   async getAllProducts(): Promise<Product[]> {
@@ -42,9 +40,7 @@ export class ProductsController {
   }
 
   @Post()
-  async createProduct(
-    @Body() productDto: ProductDto,
-  ) {
+  async createProduct(@Body() productDto: ProductDto) {
     const source = 'ProductsController -> createProduct()';
 
     this.logger.log({

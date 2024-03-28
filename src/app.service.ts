@@ -11,7 +11,7 @@ export class AppService {
     Logger.log({
       message: '[RES] GET /health',
       response: this.HEALTH_RESPONSE,
-      ip
+      ip,
     });
 
     return this.HEALTH_RESPONSE;

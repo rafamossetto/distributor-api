@@ -8,16 +8,20 @@ import { Route } from 'src/schemas';
 export class RoutesService {
   constructor(
     private readonly logger: Logger = new Logger(RoutesService.name),
-    @InjectModel(Route.name) private routesModel: Model<Route>
-    ) {}
+    @InjectModel(Route.name) private routesModel: Model<Route>,
+  ) {}
 
   private readonly GET_ALL_SORT_PARAM = 'client';
 
   getAll({
-    startDate, endDate
-  }: { startDate?: string, endDate?: string }): Promise<HydratedDocument<Route>[]> {
+    startDate,
+    endDate,
+  }: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<HydratedDocument<Route>[]> {
     const source = 'RoutesService -> getAll()';
-    const datesFilter: { $gte?: Date, $lte?: Date } = {};
+    const datesFilter: { $gte?: Date; $lte?: Date } = {};
     const filterParams: FilterQuery<Route> = {};
 
     try {
@@ -29,7 +33,10 @@ export class RoutesService {
 
       Object.keys(datesFilter).length && (filterParams.date = datesFilter);
 
-      return this.routesModel.find(filterParams).sort(this.GET_ALL_SORT_PARAM).exec();
+      return this.routesModel
+        .find(filterParams)
+        .sort(this.GET_ALL_SORT_PARAM)
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -37,7 +44,7 @@ export class RoutesService {
         source,
       });
       throw error;
-    };
+    }
   }
 
   create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {
@@ -51,7 +58,7 @@ export class RoutesService {
         source,
       });
       throw error;
-    };
+    }
   }
 
   deleteAll() {
@@ -65,6 +72,6 @@ export class RoutesService {
         source,
       });
       throw error;
-    };
+    }
   }
 }
