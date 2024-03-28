@@ -1,7 +1,7 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
-import { PricesListDto } from 'src/dto';
+import { CreatePriceListDto } from 'src/dto';
 import { PricesList } from 'src/schemas';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class PricesListService {
   }
 
   async create(
-    createPricesListDto: PricesListDto,
+    createPricesListDto: CreatePriceListDto,
   ): Promise<HydratedDocument<PricesList>> {
     const source = 'PricesListService -> create()';
     try {
