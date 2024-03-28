@@ -19,7 +19,7 @@ export class RoutesController {
   constructor(
     private readonly routesService: RoutesService,
     private readonly logger: Logger = new Logger(RoutesController.name),
-  ) {}
+  ) { }
 
   @Get()
   async getAllRoutes(
@@ -27,24 +27,24 @@ export class RoutesController {
   ): Promise<Route[]> {
     const source = 'RoutesController -> getAllRoutes()';
 
-      const { startDate, endDate } = params;
+    const { startDate, endDate } = params;
 
-      this.logger.log({
-        message: '[REQ] GET /routes - getAllRoutes()',
-        params,
-        source,
-      });
+    this.logger.log({
+      message: '[REQ] GET /routes - getAllRoutes()',
+      params,
+      source,
+    });
 
-      const response = await this.routesService.getAll({ startDate, endDate });
+    const response = await this.routesService.getAll({ startDate, endDate });
 
-      this.logger.log({
-        message: '[RES] GET /routes - getAllRoutes()',
-        response,
-        length: response?.length,
-        source,
-      });
+    this.logger.log({
+      message: '[RES] GET /routes - getAllRoutes()',
+      response,
+      length: response?.length,
+      source,
+    });
 
-      return response;
+    return response;
   }
 
   @Post()
@@ -53,31 +53,21 @@ export class RoutesController {
   ): Promise<HydratedDocument<Route>> {
     const source = 'RoutesController -> createRoute()';
 
-    try {
-      this.logger.log({
-        message: '[REQ] POST /routes - createRoute()',
-        source,
-        body: routeDto,
-      });
+    this.logger.log({
+      message: '[REQ] POST /routes - createRoute()',
+      source,
+      body: routeDto,
+    });
 
-      const response = await this.routesService.create(routeDto);
+    const response = await this.routesService.create(routeDto);
 
-      this.logger.log({
-        message: '[RES] POST /routes - createRoute()',
-        response,
-        source,
-      });
+    this.logger.log({
+      message: '[RES] POST /routes - createRoute()',
+      response,
+      source,
+    });
 
-      return response;
-    } catch (error) {
-      this.logger.error({
-        message: `Error in ${source}`,
-        error,
-        errorString: error.toString(),
-        source,
-      });
-      throw new HttpException(error.message, 500);
-    }
+    return response;
   }
 
   @Delete()

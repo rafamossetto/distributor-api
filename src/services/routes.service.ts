@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { RouteDto } from 'src/dto';
@@ -6,33 +6,65 @@ import { Route } from 'src/schemas';
 
 @Injectable()
 export class RoutesService {
-  constructor(@InjectModel(Route.name) private routesModel: Model<Route>) {}
+  constructor(
+    private readonly logger: Logger = new Logger(RoutesService.name),
+    @InjectModel(Route.name) private routesModel: Model<Route>
+    ) {}
 
   private readonly GET_ALL_SORT_PARAM = 'client';
 
   getAll({
     startDate, endDate
   }: { startDate?: string, endDate?: string }): Promise<HydratedDocument<Route>[]> {
-
+    const source = 'RoutesService -> getAll()';
     const datesFilter: { $gte?: Date, $lte?: Date } = {};
     const filterParams: FilterQuery<Route> = {};
-    
-    const startDateInstance = new Date(startDate);
-    const endDateInstance = new Date(endDate);
 
-    startDate && (datesFilter.$gte = startDateInstance);
-    endDate && (datesFilter.$lte = endDateInstance);
+    try {
+      const startDateInstance = new Date(startDate);
+      const endDateInstance = new Date(endDate);
 
-    Object.keys(datesFilter).length && (filterParams.date = datesFilter);
+      startDate && (datesFilter.$gte = startDateInstance);
+      endDate && (datesFilter.$lte = endDateInstance);
 
-    return this.routesModel.find(filterParams).sort(this.GET_ALL_SORT_PARAM).exec();
+      Object.keys(datesFilter).length && (filterParams.date = datesFilter);
+
+      return this.routesModel.find(filterParams).sort(this.GET_ALL_SORT_PARAM).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    };
   }
 
   create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {
-    return this.routesModel.create(createRouteDto);
+    const source = 'RoutesService -> create()';
+    try {
+      return this.routesModel.create(createRouteDto);
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    };
   }
 
   deleteAll() {
-    return this.routesModel.deleteMany({});
+    const source = 'RoutesService -> deleteAll()';
+    try {
+      return this.routesModel.deleteMany({});
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    };
   }
 }
