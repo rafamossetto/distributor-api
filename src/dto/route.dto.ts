@@ -1,14 +1,14 @@
-import { IsNotEmpty, IsString, IsEnum, IsDateString } from 'class-validator';
-import { RouteStatusEnum } from 'src/schemas';
+import { IsNotEmpty, IsDateString, IsString, IsArray } from 'class-validator';
+// import { RouteStatusEnum } from 'src/schemas';
 
 export class RouteDto {
-  @IsNotEmpty()
   @IsString()
-  client: string;
+  @IsArray()
+  clients: string;
 
-  @IsNotEmpty()
-  @IsEnum(RouteStatusEnum)
-  status: RouteStatusEnum;
+  // @IsNotEmpty()
+  // @IsEnum(RouteStatusEnum)
+  // status: RouteStatusEnum;
 
   @IsNotEmpty()
   @IsDateString()

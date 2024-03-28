@@ -14,8 +14,8 @@ Lista 6 15%
 
 @Schema({ versionKey: false })
 export class PricesList {
-  @Prop({ required: true, unique: true })
-  alias: string;
+  @Prop({ required: true })
+  number: number;
 
   @Prop({ required: true, unique: true })
   percent: number;

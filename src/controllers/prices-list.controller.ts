@@ -6,9 +6,10 @@ import {
   Get,
   Logger,
   Post,
+  Put,
 } from '@nestjs/common';
-import { HydratedDocument } from 'mongoose';
-import { PricesListDto } from 'src/dto';
+import { HydratedDocument, UpdateWriteOpResult } from 'mongoose';
+import { CreatePriceListDto, DeletePriceListDto, UpdatePriceListDto } from 'src/dto';
 import { PricesList } from 'src/schemas';
 import { PricesListService } from 'src/services';
 
@@ -17,7 +18,7 @@ export class PricesListController {
   constructor(
     private readonly pricesListService: PricesListService,
     private readonly logger: Logger = new Logger(PricesListController.name),
-  ) {}
+  ) { }
 
   @Get()
   async getAllPricesList(): Promise<PricesList[]> {
@@ -42,7 +43,7 @@ export class PricesListController {
 
   @Post()
   async createPricesList(
-    @Body() pricesListDto: PricesListDto,
+    @Body() pricesListDto: CreatePriceListDto,
   ): Promise<HydratedDocument<PricesList>> {
     const source = 'PricesListController -> createPricesList()';
 
@@ -56,6 +57,56 @@ export class PricesListController {
 
     this.logger.log({
       message: '[RES] POST /pricesList - createPricesList()',
+      response,
+      source,
+    });
+
+    return response;
+  }
+
+  @Put()
+  async updateOne(
+    @Body() body: UpdatePriceListDto,
+  ): Promise<UpdateWriteOpResult> {
+    const source = 'PricesListController -> updateOne()';
+
+    const { number, percent } = body;
+
+    this.logger.log({
+      message: '[REQ] PUT /pricesList - updateOne()',
+      source,
+      body,
+    });
+
+    const response = await this.pricesListService.update({ number, percent });
+
+    this.logger.log({
+      message: '[RES] PUT /pricesList - updateOne()',
+      response,
+      source,
+    });
+
+    return response;
+  }
+
+  @Delete()
+  async deleteOne(
+    @Body() body: DeletePriceListDto,
+  ) {
+    const source = 'PricesListController -> deleteOne()';
+
+    const { number } = body;
+
+    this.logger.log({
+      message: '[REQ] DELETE /pricesList - deleteOne()',
+      source,
+      body,
+    });
+
+    const response = await this.pricesListService.delete(number);
+
+    this.logger.log({
+      message: '[RES] DELETE /pricesList - deleteOne()',
       response,
       source,
     });

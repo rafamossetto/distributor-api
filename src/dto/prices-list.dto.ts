@@ -1,11 +1,24 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class PricesListDto {
+export class CreatePriceListDto {
   @IsNotEmpty()
-  @IsString()
-  alias: string;
+  @IsNumber()
+  percent: number;
+}
+
+
+export class UpdatePriceListDto {
+  @IsNotEmpty()
+  @IsNumber()
+  number: number;
 
   @IsNotEmpty()
   @IsNumber()
   percent: number;
+}
+
+export class DeletePriceListDto {
+  @IsNotEmpty()
+  @IsNumber()
+  number: number;
 }

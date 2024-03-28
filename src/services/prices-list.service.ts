@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { PricesListDto } from 'src/dto';
@@ -23,26 +23,62 @@ export class PricesListService {
         error,
         source,
       });
-      throw error;
+      throw new HttpException(error.toString(), 500);
     }
   }
 
-  create(
+  async create(
     createPricesListDto: PricesListDto,
   ): Promise<HydratedDocument<PricesList>> {
     const source = 'PricesListService -> create()';
     try {
-      return this.pricesListModel.create(createPricesListDto);
+      const count = await this.pricesListModel.countDocuments();
+
+      return await this.pricesListModel.create({
+        ...createPricesListDto,
+        number: count + 1,
+      });
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
         error,
         source,
       });
-      throw error;
+      throw new HttpException(error.toString(), 500);
     }
   }
 
+  update({
+    number,
+    percent
+  }: { number: number, percent: number }) {
+    const source = 'PricesListService -> update()';
+    try {
+      return this.pricesListModel.updateOne({ number }, { percent });
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
+
+  delete(number: number) {
+    const source = 'PricesListService -> deleteOne()';
+    try {
+      return this.pricesListModel.deleteOne({ number });
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
+  
   deleteAll() {
     const source = 'PricesListService -> deleteAll()';
     try {
@@ -53,7 +89,7 @@ export class PricesListService {
         error,
         source,
       });
-      throw error;
+      throw new HttpException(error.toString(), 500);
     }
   }
 }
