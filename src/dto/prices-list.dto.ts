@@ -6,7 +6,6 @@ export class CreatePriceListDto {
   percent: number;
 }
 
-
 export class UpdatePriceListDto {
   @IsNotEmpty()
   @IsNumber()

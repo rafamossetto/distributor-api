@@ -4,7 +4,7 @@ import { HydratedDocument } from 'mongoose';
 export type PricesListDocument = HydratedDocument<PricesList>;
 
 @Schema({ versionKey: false })
-export class PricesList {  
+export class PricesList {
   @Prop({ required: true })
   number: number;
 

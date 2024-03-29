@@ -11,7 +11,7 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<Product>,
     @InjectModel(PricesList.name) private pricesListModel: Model<PricesList>,
     private readonly logger: Logger = new Logger(ProductsService.name),
-  ) { }
+  ) {}
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
@@ -38,13 +38,15 @@ export class ProductsService {
     try {
       const { price: firstPrice } = createProductDto;
 
-      const allPercentsList = (await this.pricesListModel.find().exec()).map(({ percent }) => percent);
+      const allPercentsList = (await this.pricesListModel.find().exec()).map(
+        ({ percent }) => percent,
+      );
 
       const increasedPrices = getPricesWithPercent(firstPrice, allPercentsList);
 
       const prices = [firstPrice, ...increasedPrices];
 
-      const codeIncreased = await this.productModel.countDocuments() + 1;
+      const codeIncreased = (await this.productModel.countDocuments()) + 1;
 
       return this.productModel.create({
         ...createProductDto,

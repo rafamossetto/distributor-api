@@ -9,7 +9,11 @@ import {
   Put,
 } from '@nestjs/common';
 import { HydratedDocument, UpdateWriteOpResult } from 'mongoose';
-import { CreatePriceListDto, DeletePriceListDto, UpdatePriceListDto } from 'src/dto';
+import {
+  CreatePriceListDto,
+  DeletePriceListDto,
+  UpdatePriceListDto,
+} from 'src/dto';
 import { PricesList } from 'src/schemas';
 import { PricesListService } from 'src/services';
 
@@ -18,7 +22,7 @@ export class PricesListController {
   constructor(
     private readonly pricesListService: PricesListService,
     private readonly logger: Logger = new Logger(PricesListController.name),
-  ) { }
+  ) {}
 
   @Get()
   async getAllPricesList(): Promise<PricesList[]> {
@@ -90,9 +94,7 @@ export class PricesListController {
   }
 
   @Delete()
-  async deleteOne(
-    @Body() body: DeletePriceListDto,
-  ) {
+  async deleteOne(@Body() body: DeletePriceListDto) {
     const source = 'PricesListController -> deleteOne()';
 
     const { number } = body;

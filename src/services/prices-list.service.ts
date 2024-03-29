@@ -48,10 +48,7 @@ export class PricesListService {
     }
   }
 
-  update({
-    number,
-    percent
-  }: { number: number, percent: number }) {
+  update({ number, percent }: { number: number; percent: number }) {
     const source = 'PricesListService -> update()';
     try {
       return this.pricesListModel.updateOne({ number }, { percent });
@@ -78,7 +75,7 @@ export class PricesListService {
       throw new HttpException(error.toString(), 500);
     }
   }
-  
+
   deleteAll() {
     const source = 'PricesListService -> deleteAll()';
     try {

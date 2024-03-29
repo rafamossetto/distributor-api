@@ -6,8 +6,8 @@
  * @param {number[]} percents - An array of percentage values that you want to apply to the base price.
  */
 export const getPricesWithPercent = (basePrice: number, percents: number[]) =>
-  percents.map(percent => {
+  percents.map((percent) => {
     const decimalPercent = parseFloat(percent.toString()) / 100;
 
-    return basePrice + (basePrice * decimalPercent);
+    return basePrice + basePrice * decimalPercent;
   });

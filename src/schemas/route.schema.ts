@@ -12,13 +12,13 @@ export enum ClientStatusEnum {
 
 @Schema({ versionKey: false })
 class RouteClient extends Client {
-  @Prop({ type: 'enum', default: ClientStatusEnum.NOT_VISITED })
-  status: ClientStatusEnum
-};
+  @Prop({ enum: ClientStatusEnum, default: ClientStatusEnum.NOT_VISITED })
+  status: ClientStatusEnum;
+}
 
 @Schema({ versionKey: false })
 export class Route {
-  @Prop()
+  @Prop({ required: true, type: [RouteClient] })
   clients: RouteClient[];
 
   // @Prop({ required: true, enum: RouteStatusEnum })
