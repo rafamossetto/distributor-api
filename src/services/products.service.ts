@@ -2,14 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ProductDto } from 'src/dto';
-import { Product } from 'src/schemas';
+import { PricesList, Product } from 'src/schemas';
+import { getPricesWithPercent } from 'src/utils';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(PricesList.name) private pricesListModel: Model<PricesList>,
     private readonly logger: Logger = new Logger(ProductsService.name),
-  ) {}
+  ) { }
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
@@ -34,11 +36,20 @@ export class ProductsService {
     const source = 'ProductsService -> create()';
 
     try {
-      const count = await this.productModel.countDocuments();
+      const { price: firstPrice } = createProductDto;
+
+      const allPercentsList = (await this.pricesListModel.find().exec()).map(({ percent }) => percent);
+
+      const increasedPrices = getPricesWithPercent(firstPrice, allPercentsList);
+
+      const prices = [firstPrice, ...increasedPrices];
+
+      const codeIncreased = await this.productModel.countDocuments() + 1;
 
       return this.productModel.create({
         ...createProductDto,
-        code: count + 1,
+        code: codeIncreased,
+        prices,
       });
     } catch (error) {
       this.logger.error({

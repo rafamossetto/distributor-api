@@ -1,10 +1,13 @@
-import { IsNotEmpty, IsDateString, IsString, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsDateString, IsArray, ValidateNested } from 'class-validator';
+import { Client } from 'src/schemas';
 // import { RouteStatusEnum } from 'src/schemas';
 
 export class RouteDto {
-  @IsString()
   @IsArray()
-  clients: string;
+  @ValidateNested({ each: true })
+  @Type(() => Client)
+  clients: Client[];
 
   // @IsNotEmpty()
   // @IsEnum(RouteStatusEnum)

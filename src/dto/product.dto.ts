@@ -1,7 +1,6 @@
 import {
   IsNotEmpty,
   IsEnum,
-  IsArray,
   IsNumber,
   IsString,
   IsOptional,
@@ -20,7 +19,6 @@ export class ProductDto {
   @IsString()
   description: string;
 
-  @IsArray()
-  @IsNumber({}, { each: true })
-  prices: number[];
+  @IsNumber()
+  price: number;
 }
