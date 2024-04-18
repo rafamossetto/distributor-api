@@ -4,13 +4,10 @@ import {
   IsDateString,
   IsArray,
   ValidateNested,
-  IsDefined,
-  IsNotEmptyObject,
   IsString,
   ArrayNotEmpty,
 } from 'class-validator';
 // import { RouteStatusEnum } from 'src/schemas';
-
 
 class ClientDto {
   @IsNotEmpty()
@@ -28,7 +25,7 @@ class ClientDto {
   @IsNotEmpty()
   @IsString()
   phone: string;
-};
+}
 
 export class RouteDto {
   @IsArray()
@@ -36,10 +33,6 @@ export class RouteDto {
   @ValidateNested({ each: true })
   @Type(() => ClientDto)
   clients: ClientDto[];
-
-  // @IsNotEmpty()
-  // @IsEnum(RouteStatusEnum)
-  // status: RouteStatusEnum;
 
   @IsNotEmpty()
   @IsDateString()

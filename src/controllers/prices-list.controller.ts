@@ -105,6 +105,10 @@ export class PricesListController {
       body,
     });
 
+    if (!number) {
+      return this.pricesListService.deleteAll();
+    }
+
     const response = await this.pricesListService.delete(number);
 
     this.logger.log({
@@ -114,13 +118,5 @@ export class PricesListController {
     });
 
     return response;
-  }
-
-  @Delete()
-  async deletePricesList(@Body() body: { admin: boolean }) {
-    const { admin } = body;
-    if (!admin) throw new ForbiddenException('Not admin access :(');
-
-    return this.pricesListService.deleteAll();
   }
 }

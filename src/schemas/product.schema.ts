@@ -26,6 +26,9 @@ export class Product {
   @Prop()
   description: string;
 
+  @Prop({ required: true, default: 1 })
+  quantity: number;
+
   @Prop({
     required: true,
     validate: {
