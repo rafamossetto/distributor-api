@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Logger,
+  Param,
   Post,
   Put,
 } from '@nestjs/common';
@@ -40,6 +41,29 @@ export class ClientsController {
     return response;
   }
 
+  @Post()
+  async createClient(
+    @Body() clientDto: ClientDto,
+  ): Promise<HydratedDocument<Client>> {
+    const source = 'ClientsController -> createClient()';
+
+    this.logger.log({
+      message: '[REQ] POST /clients - createClient()',
+      source,
+      body: clientDto,
+    });
+
+    const response = await this.clientsService.create(clientDto);
+
+    this.logger.log({
+      message: '[RES] POST /clients - createClient()',
+      response,
+      source,
+    });
+
+    return response;
+  }
+
   @Put()
   async updateClient(
     @Body() body: UpdateClientDto,
@@ -65,28 +89,30 @@ export class ClientsController {
     return response;
   };
 
-  @Post()
-  async createClient(
-    @Body() clientDto: ClientDto,
-  ): Promise<HydratedDocument<Client>> {
-    const source = 'ClientsController -> createClient()';
+  @Delete(':id')
+  async deleteClient(
+    @Param('id') id: string,
+  ): Promise<boolean> {
+    const source = 'ClientsController -> deleteClient()';
 
     this.logger.log({
-      message: '[REQ] POST /clients - createClient()',
+      message: '[REQ] DELETE /clients - deleteClient()',
       source,
-      body: clientDto,
+      id,
     });
 
-    const response = await this.clientsService.create(clientDto);
+    const response = await this.clientsService.delete(id);
 
     this.logger.log({
-      message: '[RES] POST /clients - createClient()',
+      message: '[RES] DELETE /clients - deleteClient()',
       response,
       source,
+      id,
     });
 
-    return response;
-  }
+    return !!response.deletedCount;
+  };
+
 
   @Delete()
   async deleteClients(@Body() body: { admin: boolean }) {

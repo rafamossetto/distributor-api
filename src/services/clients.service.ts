@@ -58,6 +58,21 @@ export class ClientsService {
       throw new HttpException(error.message, 500);
     }
   }
+  async delete(id: string): Promise<{ acknowledged: boolean, deletedCount: number }> {
+    const source = 'ClientsService -> delete()';
+
+    try {
+      return this.clientModel.deleteOne({ _id: id });
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
+    }
+  }
 
   deleteAll() {
     return this.clientModel.deleteMany({});
