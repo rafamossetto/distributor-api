@@ -38,7 +38,6 @@ export class RoutesController {
 
     this.logger.log({
       message: '[RES] GET /routes - getAllRoutes()',
-      response,
       length: response?.length,
       source,
     });

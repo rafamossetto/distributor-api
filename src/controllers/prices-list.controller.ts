@@ -37,7 +37,6 @@ export class PricesListController {
 
     this.logger.log({
       message: '[RES] GET /pricesList - getAllPricesList()',
-      response,
       length: response?.length,
       source,
     });

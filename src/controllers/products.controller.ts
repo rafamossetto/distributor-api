@@ -31,7 +31,6 @@ export class ProductsController {
 
     this.logger.log({
       message: '[RES] GET /products - getAllProducts()',
-      response,
       length: response?.length,
       source,
     });

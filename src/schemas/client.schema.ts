@@ -16,6 +16,9 @@ export class Client {
 
   @Prop({ required: true })
   phone: string;
+
+  @Prop({ required: true, default: 0 })
+  currentAccount: number;
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

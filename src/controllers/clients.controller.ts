@@ -33,7 +33,6 @@ export class ClientsController {
 
     this.logger.log({
       message: '[RES] GET /clients - getAllClients()',
-      response,
       length: response?.length,
       source,
     });
