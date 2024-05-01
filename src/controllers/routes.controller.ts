@@ -6,6 +6,7 @@ import {
   Get,
   Logger,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
@@ -23,7 +24,7 @@ export class RoutesController {
   @Get()
   async getAllRoutes(
     @Query() params?: { startDate?: string; endDate?: string },
-  ): Promise<Route[]> {
+  ): Promise<Route> {
     const source = 'RoutesController -> getAllRoutes()';
 
     const { startDate, endDate } = params;
@@ -34,11 +35,11 @@ export class RoutesController {
       source,
     });
 
-    const response = await this.routesService.getAll({ startDate, endDate });
+    const [response] = await this.routesService.getAll({ startDate, endDate });
 
     this.logger.log({
       message: '[RES] GET /routes - getAllRoutes()',
-      length: response?.length,
+      response,
       source,
     });
 
@@ -61,6 +62,31 @@ export class RoutesController {
 
     this.logger.log({
       message: '[RES] POST /routes - createRoute()',
+      response,
+      source,
+    });
+
+    return response;
+  }
+
+  @Put()
+  async updateRoute(
+    @Body() body: any,
+  ): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesController -> updateRoute()';
+
+    this.logger.log({
+      message: '[REQ] PUT /routes - updateRoute()',
+      source,
+      body,
+    });
+
+    const { id } = body;
+
+    const response = await this.routesService.update(id, body);
+
+    this.logger.log({
+      message: '[RES] PUT /routes - updateRoute()',
       response,
       source,
     });

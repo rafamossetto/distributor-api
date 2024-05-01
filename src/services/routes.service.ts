@@ -61,6 +61,20 @@ export class RoutesService {
     }
   }
 
+  update(id: string, updateParams: any): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesService -> update()';
+    try {
+      return this.routesModel.findByIdAndUpdate(id, updateParams);
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
   deleteAll() {
     const source = 'RoutesService -> deleteAll()';
     try {

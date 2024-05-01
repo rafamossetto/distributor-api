@@ -38,3 +38,7 @@ export class RouteDto {
   @IsDateString()
   date: Date;
 }
+
+export class UpdateRouteDto {
+
+}
