@@ -6,8 +6,9 @@ import {
   ValidateNested,
   IsString,
   ArrayNotEmpty,
+  IsEnum,
 } from 'class-validator';
-// import { RouteStatusEnum } from 'src/schemas';
+import { ClientStatusEnum } from 'src/schemas';
 
 class ClientDto {
   @IsNotEmpty()
@@ -40,5 +41,15 @@ export class RouteDto {
 }
 
 export class UpdateRouteDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 
+  @IsNotEmpty()
+  @IsString()
+  clientId: string;
+
+  @IsNotEmpty()
+  @IsEnum(ClientStatusEnum)
+  status: ClientStatusEnum;
 }

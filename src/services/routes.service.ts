@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
-import { RouteDto } from 'src/dto';
+import { RouteDto, UpdateRouteDto } from 'src/dto';
 import { Route } from 'src/schemas';
 
 @Injectable()
@@ -61,14 +61,39 @@ export class RoutesService {
     }
   }
 
-  update(id: string, updateParams: any): Promise<HydratedDocument<Route>> {
+  update(updateRouteDto: UpdateRouteDto): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> update()';
     try {
-      return this.routesModel.findByIdAndUpdate(id, updateParams);
+      const { id, clientId, status } = updateRouteDto;
+
+      return this.routesModel.findByIdAndUpdate(
+        id, 
+        { $set: { "clients.$[elem].status": status } },
+        {
+          arrayFilters: [{ "elem._id": clientId }],
+          multi: true,
+        }
+    );
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
         error,
+        source,
+      });
+      throw error;
+    }
+  }
+
+  async delete(id: string): Promise<{ acknowledged: boolean, deletedCount: number }> {
+    const source = 'RoutesService -> delete()';
+
+    try {
+      return this.routesModel.deleteOne({ _id: id });
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
         source,
       });
       throw error;

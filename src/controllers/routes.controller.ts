@@ -5,12 +5,13 @@ import {
   ForbiddenException,
   Get,
   Logger,
+  Param,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
-import { RouteDto } from 'src/dto';
+import { RouteDto, UpdateRouteDto } from 'src/dto';
 import { Route } from 'src/schemas';
 import { RoutesService } from 'src/services';
 
@@ -71,7 +72,7 @@ export class RoutesController {
 
   @Put()
   async updateRoute(
-    @Body() body: any,
+    @Body() body: UpdateRouteDto,
   ): Promise<HydratedDocument<Route>> {
     const source = 'RoutesController -> updateRoute()';
 
@@ -81,9 +82,7 @@ export class RoutesController {
       body,
     });
 
-    const { id } = body;
-
-    const response = await this.routesService.update(id, body);
+    const response = await this.routesService.update(body);
 
     this.logger.log({
       message: '[RES] PUT /routes - updateRoute()',
@@ -93,6 +92,30 @@ export class RoutesController {
 
     return response;
   }
+
+  @Delete(':id')
+  async deleteRoute(
+    @Param('id') id: string,
+  ): Promise<boolean> {
+    const source = 'RoutesController -> deleteRoute()';
+
+    this.logger.log({
+      message: '[REQ] DELETE /routes - deleteRoute()',
+      source,
+      id,
+    });
+
+    const response = await this.routesService.delete(id);
+
+    this.logger.log({
+      message: '[RES] DELETE /routes - deleteRoute()',
+      response,
+      source,
+      id,
+    });
+
+    return !!response.deletedCount;
+  };
 
   @Delete()
   async deleteRoutes(@Body() body: { admin: boolean }) {
