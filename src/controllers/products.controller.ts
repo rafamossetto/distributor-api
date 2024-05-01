@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Logger,
+  Param,
   Post,
 } from '@nestjs/common';
 import { ProductDto } from 'src/dto';
@@ -58,6 +59,30 @@ export class ProductsController {
 
     return response;
   }
+
+  @Delete(':id')
+  async deleteProduct(
+    @Param('id') id: string,
+  ): Promise<boolean> {
+    const source = 'ProductsController -> deleteProducts()';
+
+    this.logger.log({
+      message: '[REQ] DELETE /products - deleteProducts()',
+      source,
+      id,
+    });
+
+    const response = await this.productsService.delete(id);
+
+    this.logger.log({
+      message: '[RES] DELETE /products - deleteProducts()',
+      response,
+      source,
+      id,
+    });
+
+    return !!response.deletedCount;
+  };
 
   @Delete()
   async deleteProducts(@Body() body: { admin: boolean }) {

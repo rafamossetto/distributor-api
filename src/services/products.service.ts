@@ -36,7 +36,7 @@ export class ProductsService {
     const source = 'ProductsService -> create()';
 
     try {
-      const { price: firstPrice } = createProductDto;
+      const { price: firstPrice, name } = createProductDto;
 
       const allPercentsList = (await this.pricesListModel.find().exec()).map(
         ({ percent }) => percent,
@@ -50,6 +50,7 @@ export class ProductsService {
 
       return this.productModel.create({
         ...createProductDto,
+        name: name.toUpperCase(),
         code: codeIncreased,
         prices,
       });
@@ -57,6 +58,22 @@ export class ProductsService {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
         error,
+        source,
+      });
+      throw error;
+    }
+  }
+
+  async delete(id: string): Promise<{ acknowledged: boolean, deletedCount: number }> {
+    const source = 'ProductsService -> delete()';
+
+    try {
+      return this.productModel.deleteOne({ _id: id });
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
         source,
       });
       throw error;
