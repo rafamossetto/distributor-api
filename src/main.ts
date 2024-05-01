@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { version, name } from '../package.json';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 
 async function bootstrap() {
@@ -17,6 +18,14 @@ async function bootstrap() {
   app.setViewEngine('hbs');
 
   app.useGlobalPipes(new ValidationPipe());
+
+  const config = new DocumentBuilder()
+    .setTitle('API Documents')
+    .setVersion('1.0')
+    .addTag('All Endpoints Docs')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(PORT);
 

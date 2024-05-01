@@ -72,6 +72,7 @@ export class RoutesService {
         {
           arrayFilters: [{ "elem._id": clientId }],
           multi: true,
+          new: true,
         }
     );
     } catch (error) {
@@ -89,6 +90,27 @@ export class RoutesService {
 
     try {
       return this.routesModel.deleteOne({ _id: id });
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw error;
+    }
+  }
+
+  async deleteClientOfRoute(routeId: string, clientId: string):
+    Promise<Promise<HydratedDocument<Route>>> {
+    const source = 'RoutesService -> delete()';
+
+    try {
+      return this.routesModel.findOneAndUpdate(
+        { _id: routeId },
+        { $pull: { clients: { _id: clientId } }},
+        { new: true },
+      )
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,

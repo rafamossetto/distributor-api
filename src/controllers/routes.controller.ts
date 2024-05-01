@@ -117,6 +117,33 @@ export class RoutesController {
     return !!response.deletedCount;
   };
 
+  @Delete('/:routeId/:clientId')
+  async deleteClientFromRoute(
+    @Param('routeId') routeId: string,
+    @Param('clientId') clientId: string,
+  ): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesController -> deleteRoute()';
+
+    this.logger.log({
+      message: '[REQ] DELETE /routes - deleteRoute()',
+      source,
+      routeId,
+      clientId,
+    });
+
+    const response = await this.routesService.deleteClientOfRoute(routeId, clientId);
+
+    this.logger.log({
+      message: '[RES] DELETE /routes - deleteRoute()',
+      response,
+      source,
+      routeId,
+      clientId,
+    });
+
+    return response;
+  };
+
   @Delete()
   async deleteRoutes(@Body() body: { admin: boolean }) {
     const { admin } = body;
