@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import {
   ProductsController,
   RoutesController,
@@ -52,7 +52,6 @@ import {
     ]),
   ],
   providers: [
-    Logger,
     ProductsService,
     ClientsService,
     RoutesService,

@@ -6,8 +6,9 @@ import { PricesList } from 'src/schemas';
 
 @Injectable()
 export class PricesListService {
+  private readonly logger = new Logger(PricesListService.name);
+
   constructor(
-    private readonly logger: Logger = new Logger(PricesListService.name),
     @InjectModel(PricesList.name) private pricesListModel: Model<PricesList>,
   ) {}
 

@@ -10,19 +10,25 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 import { RouteDto, UpdateRouteDto } from 'src/dto';
 import { Route } from 'src/schemas';
 import { RoutesService } from 'src/services';
 
 @Controller('routes')
+@ApiTags('routes')
 export class RoutesController {
-  constructor(
-    private readonly routesService: RoutesService,
-    private readonly logger: Logger = new Logger(RoutesController.name),
-  ) {}
+  private readonly logger = new Logger(RoutesController.name);
+
+  constructor(private readonly routesService: RoutesService) {}
 
   @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'List Route By startDate & endDate',
+    type: Route,
+  })
   async getAllRoutes(
     @Query() params?: { startDate?: string; endDate?: string },
   ): Promise<Route> {
@@ -48,6 +54,7 @@ export class RoutesController {
   }
 
   @Post()
+  @ApiResponse({ status: 201, description: 'Create Route', type: Route })
   async createRoute(
     @Body() routeDto: RouteDto,
   ): Promise<HydratedDocument<Route>> {
@@ -71,6 +78,7 @@ export class RoutesController {
   }
 
   @Put()
+  @ApiResponse({ status: 201, description: 'Update Route', type: Route })
   async updateRoute(
     @Body() body: UpdateRouteDto,
   ): Promise<HydratedDocument<Route>> {
@@ -94,9 +102,8 @@ export class RoutesController {
   }
 
   @Delete(':id')
-  async deleteRoute(
-    @Param('id') id: string,
-  ): Promise<boolean> {
+  @ApiResponse({ status: 201, description: 'Delete Route', type: Boolean })
+  async deleteRoute(@Param('id') id: string): Promise<boolean> {
     const source = 'RoutesController -> deleteRoute()';
 
     this.logger.log({
@@ -115,9 +122,14 @@ export class RoutesController {
     });
 
     return !!response.deletedCount;
-  };
+  }
 
   @Delete('/:routeId/:clientId')
+  @ApiResponse({
+    status: 201,
+    description: 'Delete Client From Route',
+    type: Route,
+  })
   async deleteClientFromRoute(
     @Param('routeId') routeId: string,
     @Param('clientId') clientId: string,
@@ -131,7 +143,10 @@ export class RoutesController {
       clientId,
     });
 
-    const response = await this.routesService.deleteClientOfRoute(routeId, clientId);
+    const response = await this.routesService.deleteClientOfRoute(
+      routeId,
+      clientId,
+    );
 
     this.logger.log({
       message: '[RES] DELETE /routes - deleteRoute()',
@@ -142,7 +157,7 @@ export class RoutesController {
     });
 
     return response;
-  };
+  }
 
   @Delete()
   async deleteRoutes(@Body() body: { admin: boolean }) {

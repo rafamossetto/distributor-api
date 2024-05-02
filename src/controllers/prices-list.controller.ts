@@ -2,12 +2,12 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Logger,
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument, UpdateWriteOpResult } from 'mongoose';
 import {
   CreatePriceListDto,
@@ -18,13 +18,18 @@ import { PricesList } from 'src/schemas';
 import { PricesListService } from 'src/services';
 
 @Controller('pricesList')
+@ApiTags('pricesList')
 export class PricesListController {
-  constructor(
-    private readonly pricesListService: PricesListService,
-    private readonly logger: Logger = new Logger(PricesListController.name),
-  ) {}
+  private readonly logger = new Logger(PricesListController.name);
+
+  constructor(private readonly pricesListService: PricesListService) {}
 
   @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'List All Prices List',
+    type: [PricesList],
+  })
   async getAllPricesList(): Promise<PricesList[]> {
     const source = 'PricesListController -> getAllPricesList()';
 
@@ -45,6 +50,11 @@ export class PricesListController {
   }
 
   @Post()
+  @ApiResponse({
+    status: 201,
+    description: 'Create Price List',
+    type: PricesList,
+  })
   async createPricesList(
     @Body() pricesListDto: CreatePriceListDto,
   ): Promise<HydratedDocument<PricesList>> {
@@ -68,6 +78,11 @@ export class PricesListController {
   }
 
   @Put()
+  @ApiResponse({
+    status: 201,
+    description: 'Update Price List',
+    type: PricesList,
+  })
   async updateOne(
     @Body() body: UpdatePriceListDto,
   ): Promise<UpdateWriteOpResult> {
@@ -93,7 +108,12 @@ export class PricesListController {
   }
 
   @Delete()
-  async deleteOne(@Body() body: DeletePriceListDto) {
+  @ApiResponse({
+    status: 200,
+    description: 'Delete Price List',
+    type: PricesList,
+  })
+  async deleteOne(@Body() body: DeletePriceListDto): Promise<any> {
     const source = 'PricesListController -> deleteOne()';
 
     const { number } = body;

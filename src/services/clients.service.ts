@@ -9,7 +9,7 @@ export class ClientsService {
   private readonly logger = new Logger(ClientsService.name);
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  constructor(@InjectModel(Client.name) private clientModel: Model<Client>) { }
+  constructor(@InjectModel(Client.name) private clientModel: Model<Client>) {}
 
   getAll(): Promise<HydratedDocument<Client>[]> {
     const source = 'ClientsService -> getAll()';
@@ -43,7 +43,10 @@ export class ClientsService {
     }
   }
 
-  async update(id: string, updateParams: UpdateClientDto): Promise<HydratedDocument<Client>> {
+  async update(
+    id: string,
+    updateParams: UpdateClientDto,
+  ): Promise<HydratedDocument<Client>> {
     const source = 'ClientsService -> update()';
 
     try {
@@ -58,7 +61,9 @@ export class ClientsService {
       throw new HttpException(error.message, 500);
     }
   }
-  async delete(id: string): Promise<{ acknowledged: boolean, deletedCount: number }> {
+  async delete(
+    id: string,
+  ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const source = 'ClientsService -> delete()';
 
     try {

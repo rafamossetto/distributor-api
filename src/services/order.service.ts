@@ -6,9 +6,9 @@ import { Order } from 'src/schemas';
 
 @Injectable()
 export class OrderService {
-private readonly logger = new Logger(OrderService.name);
+  private readonly logger = new Logger(OrderService.name);
 
-  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) { }
+  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) {}
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 

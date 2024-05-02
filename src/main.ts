@@ -19,16 +19,18 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  const config = new DocumentBuilder()
-    .setTitle('API Documents')
+  const options = new DocumentBuilder()
+    .setTitle('distributor-api')
+    .setDescription('Document for understand the endpoints')
     .setVersion('1.0')
-    .addTag('All Endpoints Docs')
+    .addTag('Endpoints')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(PORT);
 
-  Logger.log(`[${name}] Welcome! ready on port: ${PORT} | v${version}`);
+  Logger.verbose(`[${name}] Welcome! ready on port: ${PORT} | v${version}`);
 }
 bootstrap();

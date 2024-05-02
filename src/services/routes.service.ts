@@ -6,10 +6,9 @@ import { Route } from 'src/schemas';
 
 @Injectable()
 export class RoutesService {
-  constructor(
-    private readonly logger: Logger = new Logger(RoutesService.name),
-    @InjectModel(Route.name) private routesModel: Model<Route>,
-  ) {}
+  private readonly logger = new Logger(RoutesService.name);
+
+  constructor(@InjectModel(Route.name) private routesModel: Model<Route>) {}
 
   private readonly GET_ALL_SORT_PARAM = 'client';
 
@@ -67,14 +66,14 @@ export class RoutesService {
       const { id, clientId, status } = updateRouteDto;
 
       return this.routesModel.findByIdAndUpdate(
-        id, 
-        { $set: { "clients.$[elem].status": status } },
+        id,
+        { $set: { 'clients.$[elem].status': status } },
         {
-          arrayFilters: [{ "elem._id": clientId }],
+          arrayFilters: [{ 'elem._id': clientId }],
           multi: true,
           new: true,
-        }
-    );
+        },
+      );
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -85,7 +84,9 @@ export class RoutesService {
     }
   }
 
-  async delete(id: string): Promise<{ acknowledged: boolean, deletedCount: number }> {
+  async delete(
+    id: string,
+  ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const source = 'RoutesService -> delete()';
 
     try {
@@ -101,16 +102,18 @@ export class RoutesService {
     }
   }
 
-  async deleteClientOfRoute(routeId: string, clientId: string):
-    Promise<Promise<HydratedDocument<Route>>> {
+  async deleteClientOfRoute(
+    routeId: string,
+    clientId: string,
+  ): Promise<Promise<HydratedDocument<Route>>> {
     const source = 'RoutesService -> delete()';
 
     try {
       return this.routesModel.findOneAndUpdate(
         { _id: routeId },
-        { $pull: { clients: { _id: clientId } }},
+        { $pull: { clients: { _id: clientId } } },
         { new: true },
-      )
+      );
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,

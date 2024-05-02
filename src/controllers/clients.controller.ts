@@ -9,18 +9,25 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 import { ClientDto, UpdateClientDto } from 'src/dto/client.dto';
 import { Client } from 'src/schemas';
 import { ClientsService } from 'src/services';
 
 @Controller('clients')
+@ApiTags('clients')
 export class ClientsController {
   private readonly logger = new Logger(ClientsController.name);
 
-  constructor(private readonly clientsService: ClientsService) { }
+  constructor(private readonly clientsService: ClientsService) {}
 
   @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'List All Clients - Sorted By Name A-Z',
+    type: [Client],
+  })
   async getAllClients(): Promise<Client[]> {
     const source = 'ClientsController -> getAllClients()';
 
@@ -41,6 +48,7 @@ export class ClientsController {
   }
 
   @Post()
+  @ApiResponse({ status: 201, description: 'Create Client', type: Client })
   async createClient(
     @Body() clientDto: ClientDto,
   ): Promise<HydratedDocument<Client>> {
@@ -64,6 +72,7 @@ export class ClientsController {
   }
 
   @Put()
+  @ApiResponse({ status: 201, description: 'Update Client', type: [Client] })
   async updateClient(
     @Body() body: UpdateClientDto,
   ): Promise<HydratedDocument<Client>> {
@@ -86,12 +95,11 @@ export class ClientsController {
     });
 
     return response;
-  };
+  }
 
   @Delete(':id')
-  async deleteClient(
-    @Param('id') id: string,
-  ): Promise<boolean> {
+  @ApiResponse({ status: 201, description: 'Delete Client', type: Boolean })
+  async deleteClient(@Param('id') id: string): Promise<boolean> {
     const source = 'ClientsController -> deleteClient()';
 
     this.logger.log({
@@ -110,8 +118,7 @@ export class ClientsController {
     });
 
     return !!response.deletedCount;
-  };
-
+  }
 
   @Delete()
   async deleteClients(@Body() body: { admin: boolean }) {

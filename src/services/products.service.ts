@@ -7,10 +7,11 @@ import { getPricesWithPercent } from 'src/utils';
 
 @Injectable()
 export class ProductsService {
+  private readonly logger = new Logger(ProductsService.name);
+
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
     @InjectModel(PricesList.name) private pricesListModel: Model<PricesList>,
-    private readonly logger: Logger = new Logger(ProductsService.name),
   ) {}
 
   private readonly GET_ALL_SORT_PARAM = 'name';
@@ -64,7 +65,9 @@ export class ProductsService {
     }
   }
 
-  async delete(id: string): Promise<{ acknowledged: boolean, deletedCount: number }> {
+  async delete(
+    id: string,
+  ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const source = 'ProductsService -> delete()';
 
     try {

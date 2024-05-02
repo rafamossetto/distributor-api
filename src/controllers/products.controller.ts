@@ -8,18 +8,20 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductDto } from 'src/dto';
 import { Product } from 'src/schemas';
 import { ProductsService } from 'src/services';
 
 @Controller('products')
+@ApiTags('products')
 export class ProductsController {
-  constructor(
-    private readonly productsService: ProductsService,
-    private readonly logger: Logger = new Logger(ProductsController.name),
-  ) {}
+  private readonly logger = new Logger(ProductsController.name);
+
+  constructor(private readonly productsService: ProductsService) {}
 
   @Get()
+  @ApiResponse({ status: 200, description: 'List Products', type: [Product] })
   async getAllProducts(): Promise<Product[]> {
     const source = 'ProductsController -> getAllProducts()';
 
@@ -40,6 +42,7 @@ export class ProductsController {
   }
 
   @Post()
+  @ApiResponse({ status: 201, description: 'Create Product', type: Product })
   async createProduct(@Body() productDto: ProductDto) {
     const source = 'ProductsController -> createProduct()';
 
@@ -61,9 +64,8 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  async deleteProduct(
-    @Param('id') id: string,
-  ): Promise<boolean> {
+  @ApiResponse({ status: 201, description: 'Delete Product', type: Boolean })
+  async deleteProduct(@Param('id') id: string): Promise<boolean> {
     const source = 'ProductsController -> deleteProducts()';
 
     this.logger.log({
@@ -82,7 +84,7 @@ export class ProductsController {
     });
 
     return !!response.deletedCount;
-  };
+  }
 
   @Delete()
   async deleteProducts(@Body() body: { admin: boolean }) {

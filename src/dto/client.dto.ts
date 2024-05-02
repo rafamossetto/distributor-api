@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsPhoneNumber, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsPhoneNumber,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 
 export class ClientDto {
   @IsString()
@@ -25,5 +31,5 @@ export class ClientDto {
 export class UpdateClientDto extends ClientDto {
   @IsNotEmpty()
   @IsString()
-  id: string
-};
+  id: string;
+}
