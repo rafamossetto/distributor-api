@@ -1,20 +1,19 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Render } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { OrderDto } from 'src/dto';
 import { OrderService } from 'src/services/order.service';
 
 @Controller()
-@ApiTags('order')
+@ApiTags('buyOrder')
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
 
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly orderService: OrderService) { }
 
   @Post('buyOrder')
-  @ApiResponse({ status: 200, description: 'Create Buy Order' })
-  // @Render('buyOrder')
+  @ApiResponse({ status: 201, description: 'Create Buy Order' })
   async createBuyOrder(
-    // TODO: remove anys
-    @Body() body: any,
+    @Body() body: OrderDto,
   ): Promise<any> {
     const source = 'OrderController -> createBuyOrder()';
 
@@ -23,20 +22,40 @@ export class OrderController {
       source,
       body,
     });
-    // test
-    await this.orderService.create({
-      clientId: '123',
-      products: [],
-      date: new Date(),
-    });
+    const response = await this.orderService.create(body);
 
     this.logger.log({
       message: '[RES] POST /buyOrder - createBuyOrder()',
-      // response,
+      response,
       body,
       source,
     });
 
-    return {};
+    return response;
+  }
+
+  @Get('buyOrder/:id')
+  @Render('buyOrder')
+  @ApiResponse({ status: 200, description: 'Get Buy Order By Id' })
+  async getBuyOrder(
+    @Param('id') orderId: string,
+  ): Promise<any> {
+    const source = 'OrderController -> getBuyOrder()';
+
+    this.logger.log({
+      message: `[REQ] GET /buyOrder/${orderId} - getBuyOrder()`,
+      source,
+      orderId,
+    });
+    const { products } = await this.orderService.getById(orderId);
+
+    this.logger.log({
+      message: `[RES] GET /buyOrder/${orderId} - getBuyOrder()`,
+      response: products,
+      orderId,
+      source,
+    });
+
+    return { products };
   }
 }

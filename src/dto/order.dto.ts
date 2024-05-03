@@ -1,16 +1,22 @@
-import { IsNotEmpty, IsString, IsArray, IsDate } from 'class-validator';
+import { IsNotEmpty, IsString, ArrayNotEmpty, ValidateNested } from 'class-validator';
+import { ProductDto } from './product.dto';
+import { Type } from 'class-transformer';
 import { Product } from 'src/schemas';
+
+
+class ProductOrderDto extends Product {
+  @IsString()
+  @IsNotEmpty()
+  code: number
+}
 
 export class OrderDto {
   @IsString()
   @IsNotEmpty()
   clientId: string;
 
-  @IsNotEmpty()
-  @IsArray()
-  products: Product[];
-
-  @IsNotEmpty()
-  @IsDate()
-  date: Date;
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => ProductOrderDto)
+  products: ProductOrderDto[];
 }

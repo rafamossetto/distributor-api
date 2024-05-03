@@ -27,11 +27,29 @@ export class OrderService {
     }
   }
 
+  getById(id: string): Promise<HydratedDocument<Order>> {
+    const source = 'OrderService -> getById()';
+
+    try {
+      return this.orderModel.findById(id).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
+
   create(createOrderDto: OrderDto): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> create()';
 
     try {
-      return this.orderModel.create(createOrderDto);
+      return this.orderModel.create({
+        ...createOrderDto,
+        date: new Date(),
+      });
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
