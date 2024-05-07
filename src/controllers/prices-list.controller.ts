@@ -74,6 +74,9 @@ export class PricesListController {
       source,
     });
 
+    // Update product prices
+    await this.pricesListService.updateProductPrices();
+
     return response;
   }
 
@@ -135,6 +138,9 @@ export class PricesListController {
       response,
       source,
     });
+
+    // Update product prices
+    await this.pricesListService.updateProductPrices();
 
     return response;
   }

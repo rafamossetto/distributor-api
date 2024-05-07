@@ -2,7 +2,8 @@ import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreatePriceListDto } from 'src/dto';
-import { PricesList } from 'src/schemas';
+import { PricesList, Product } from 'src/schemas';
+import { getPricesWithPercent } from 'src/utils';
 
 @Injectable()
 export class PricesListService {
@@ -10,9 +11,10 @@ export class PricesListService {
 
   constructor(
     @InjectModel(PricesList.name) private pricesListModel: Model<PricesList>,
+    @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  private readonly GET_ALL_SORT_PARAM = 'alias';
+  private readonly GET_ALL_SORT_PARAM = 'number';
 
   getAll(): Promise<HydratedDocument<PricesList>[]> {
     const source = 'PricesListService -> getAll()';
@@ -35,7 +37,7 @@ export class PricesListService {
     try {
       const count = await this.pricesListModel.countDocuments();
 
-      return await this.pricesListModel.create({
+      return this.pricesListModel.create({
         ...createPricesListDto,
         number: count + 1,
       });
@@ -62,6 +64,52 @@ export class PricesListService {
       throw new HttpException(error.toString(), 500);
     }
   }
+
+  async updateProductPrices(limit: number = 2): Promise<void> {
+    const source = 'PricesListService -> updateProductPrices()';
+    try {
+      const allPercentsList = (await this.pricesListModel.find().exec()).map(
+        ({ percent }) => percent,
+      );
+
+      let skip = 0;
+      let allDocumentsProcessed = false;
+      while (!allDocumentsProcessed) {
+        const products = await this.productModel.find().skip(skip).limit(limit).exec();
+
+        if (!products.length) {
+          allDocumentsProcessed = true;
+          continue;
+        };
+
+        const arr = products.map(product => {
+          const [basePrice] = product.prices;
+          const increasedPrices = getPricesWithPercent(basePrice, allPercentsList);
+
+          product.prices = [basePrice, ...increasedPrices];
+
+          return {
+            updateOne: {
+              filter: { _id: product._id },
+              update: product.toObject(),
+            },
+          };
+        });
+
+        await this.productModel.bulkWrite(arr);
+
+        skip += limit;
+      };
+
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    };
+  };
 
   delete(number: number) {
     const source = 'PricesListService -> deleteOne()';
