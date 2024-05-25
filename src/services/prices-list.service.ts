@@ -65,7 +65,7 @@ export class PricesListService {
     }
   }
 
-  async updateProductPrices(limit: number = 2): Promise<void> {
+  async updateProductPrices(limit: number = 10): Promise<void> {
     const source = 'PricesListService -> updateProductPrices()';
     try {
       const allPercentsList = (await this.pricesListModel.find().exec()).map(

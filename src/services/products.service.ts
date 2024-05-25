@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ProductDto } from 'src/dto';
@@ -62,6 +62,26 @@ export class ProductsService {
         source,
       });
       throw error;
+    }
+  }
+
+  async update(
+    id: string,
+    //ToDo: complete with interface
+    updateParams: any,
+  ): Promise<HydratedDocument<Product>> {
+    const source = 'ProductsService -> update()';
+
+    try {
+      return this.productModel.findByIdAndUpdate(id, updateParams);
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
     }
   }
 
