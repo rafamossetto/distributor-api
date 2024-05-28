@@ -1,7 +1,6 @@
 import {
   IsNotEmpty,
   IsString,
-  IsPhoneNumber,
   IsNumber,
   IsOptional,
 } from 'class-validator';
@@ -19,7 +18,7 @@ export class ClientDto {
   @IsNotEmpty()
   address: string;
 
-  @IsPhoneNumber()
+  @IsString()
   @IsNotEmpty()
   phone: string;
 

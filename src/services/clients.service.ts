@@ -27,11 +27,15 @@ export class ClientsService {
     }
   }
 
-  create(createClientDto: ClientDto): Promise<HydratedDocument<Client>> {
+  async create(createClientDto: ClientDto): Promise<HydratedDocument<Client>> {
     const source = 'ClientsService -> create()';
 
     try {
-      return this.clientModel.create(createClientDto);
+      const codeIncreased = (await this.clientModel.countDocuments()) + 1;
+      return this.clientModel.create({
+        ...createClientDto,
+        code: codeIncreased,
+      });
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
