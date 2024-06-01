@@ -40,7 +40,12 @@ export class OrderController {
   @ApiResponse({ status: 200, description: 'Get Buy Order By Id' })
   async getOrder(
     @Param('id') orderId: string,
-  ): Promise<{ products: Product[], documentNumber: number, date: string }> {
+  ): Promise<{
+    products: Product[],
+    documentNumber: number,
+    clientNumber: number,
+    date: string
+  }> {
     const source = 'OrderController -> getOrder()';
 
     this.logger.log({
@@ -52,6 +57,7 @@ export class OrderController {
       products,
       date,
       documentNumber,
+      clientNumber,
     } = await this.orderService.getById(orderId);
 
     this.logger.log({
@@ -64,6 +70,7 @@ export class OrderController {
     return {
       products,
       documentNumber,
+      clientNumber,
       date: date.toLocaleDateString('en-GB'),
     };
   }
