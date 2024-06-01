@@ -50,7 +50,7 @@ export class OrderService {
     try {
       return this.orderModel.create({
         ...createOrderDto,
-        orderNumber: orderCount + 1,
+        documentNumber: orderCount + 1,
         date: new Date(),
       });
     } catch (error) {
