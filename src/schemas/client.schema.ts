@@ -21,7 +21,7 @@ export class Client {
   currentAccount: number;
 
   @Prop({ required: true })
-  code: number;
+  clientNumber: number;
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

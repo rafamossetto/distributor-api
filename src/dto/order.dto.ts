@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsString, ArrayNotEmpty, ValidateNested } from 'class-validator';
-import { ProductDto } from './product.dto';
+import { IsNotEmpty, IsString, ArrayNotEmpty, ValidateNested, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Product } from 'src/schemas';
 
@@ -14,6 +13,14 @@ export class OrderDto {
   @IsString()
   @IsNotEmpty()
   clientId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  clientName: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  clientNumber: number;
 
   @ArrayNotEmpty()
   @ValidateNested({ each: true })

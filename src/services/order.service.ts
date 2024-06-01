@@ -42,12 +42,15 @@ export class OrderService {
     }
   }
 
-  create(createOrderDto: OrderDto): Promise<HydratedDocument<Order>> {
+  async create(createOrderDto: OrderDto): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> create()';
+
+    const orderCount = await this.orderModel.countDocuments();
 
     try {
       return this.orderModel.create({
         ...createOrderDto,
+        orderNumber: orderCount + 1,
         date: new Date(),
       });
     } catch (error) {

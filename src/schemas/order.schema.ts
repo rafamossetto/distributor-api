@@ -4,6 +4,11 @@ import { Product } from './product.schema';
 
 export type OrderDocument = HydratedDocument<Order>;
 
+enum OrderTypeEnum {
+  ORDER = 'order',
+  REMIT = 'remit',
+};
+
 @Schema({ versionKey: false })
 export class Order {
   @Prop({ required: true })
@@ -14,6 +19,18 @@ export class Order {
 
   @Prop({ required: true, type: Date })
   date: Date;
+
+  @Prop({ required: true, enum: OrderTypeEnum, default: OrderTypeEnum.ORDER })
+  type: OrderTypeEnum;
+
+  @Prop({ required: true })
+  documentNumber: number;
+
+  @Prop({ required: true })
+  clientName: string;
+
+  @Prop({ required: true })
+  clientNumber: number;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

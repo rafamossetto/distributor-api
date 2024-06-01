@@ -2,30 +2,31 @@ import { Body, Controller, Get, Logger, Param, Post, Render } from '@nestjs/comm
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderDto } from 'src/dto';
 import { OrderService } from 'src/services/order.service';
+import { Order, Product } from 'src/schemas';
 
 @Controller()
-@ApiTags('buyOrder')
+@ApiTags('order')
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
 
   constructor(private readonly orderService: OrderService) { }
 
-  @Post('buyOrder')
+  @Post('order')
   @ApiResponse({ status: 201, description: 'Create Buy Order' })
-  async createBuyOrder(
+  async createOrder(
     @Body() body: OrderDto,
-  ): Promise<any> {
-    const source = 'OrderController -> createBuyOrder()';
+  ): Promise<Order> {
+    const source = 'OrderController -> createOrder()';
 
     this.logger.log({
-      message: '[REQ] POST /buyOrder - createBuyOrder()',
+      message: '[REQ] POST /order - createOrder()',
       source,
       body,
     });
     const response = await this.orderService.create(body);
 
     this.logger.log({
-      message: '[RES] POST /buyOrder - createBuyOrder()',
+      message: '[RES] POST /order - createOrder()',
       response,
       body,
       source,
@@ -34,28 +35,36 @@ export class OrderController {
     return response;
   }
 
-  @Get('buyOrder/:id')
-  @Render('buyOrder')
+  @Get('order/:id')
+  @Render('order')
   @ApiResponse({ status: 200, description: 'Get Buy Order By Id' })
-  async getBuyOrder(
+  async getOrder(
     @Param('id') orderId: string,
-  ): Promise<any> {
-    const source = 'OrderController -> getBuyOrder()';
+  ): Promise<{ products: Product[], documentNumber: number, date: string }> {
+    const source = 'OrderController -> getOrder()';
 
     this.logger.log({
-      message: `[REQ] GET /buyOrder/${orderId} - getBuyOrder()`,
+      message: `[REQ] GET /order/${orderId} - getOrder()`,
       source,
       orderId,
     });
-    const { products } = await this.orderService.getById(orderId);
+    const {
+      products,
+      date,
+      documentNumber,
+    } = await this.orderService.getById(orderId);
 
     this.logger.log({
-      message: `[RES] GET /buyOrder/${orderId} - getBuyOrder()`,
+      message: `[RES] GET /order/${orderId} - getOrder()`,
       response: products,
       orderId,
       source,
     });
 
-    return { products };
+    return {
+      products,
+      documentNumber,
+      date: date.toLocaleDateString('en-GB'),
+    };
   }
 }

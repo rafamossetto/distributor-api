@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orden de Carga</title>
+  <style>
+    /* Estilos CSS para la página */
+    @page {
+      size: A4 landscape;
+    }
+
+    /* Estilos CSS para el contenido */
+    body {
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      width: 50%;
+      /* Ocupa la mitad de la página */
+      margin: 0 auto;
+      /* Centra el contenido horizontalmente */
+    }
+
+    /* Estilos CSS para la tabla */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      font-weight: lighter;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    /* Quitar las líneas de la tabla */
+    table,
+    th,
+    td {
+      border: none;
+    }
+
+    /* Estilos CSS para los campos adicionales */
+    .info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .info-left,
+    .info-center,
+    .info-right {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .order-checkbox {
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    /* Estilos CSS para el logo y el título */
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header img {
+      margin-right: 15%;
+    }
+  </style>
+    <script>
+    function translateMeasurement(measurement) {
+      return ({
+        unit: 'unidad',
+        kilogram: 'kilogramo',
+      })[measurement] || measurement
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <!-- Logo del vendedor -->
+      <img src="../distributor-logo.png" alt="Logo del vendedor" width="150px" height="50px">
+
+      <!-- Titulo -->
+      <p>Orden de Carga</p>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info">
+      <div class="info-left">
+        <div>Preparo: __________</div>
+      </div>
+      <div class="info-center">
+        <div>Pedido N.º: {{documentNumber}}</div>
+        <div>Cliente N.º: {{clientNumber}}</div>
+      </div>
+      <div class="info-right">
+        <div>Fecha: {{date}}</div>
+        <div>Entrega: {{date}}</div>
+      </div>
+    </div>
+
+    <!-- Tabla de productos -->
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Presentación</th>
+          <th>Cantidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each products}}
+        <tr>
+          <td>{{code}}</td>
+          <td>{{description}}</td>
+          <td>{{measurement}}</td>
+          <td>{{quantity}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="order-checkbox">Pedido completo ☐</div>
+  </div>
+</body>
+
+</html>

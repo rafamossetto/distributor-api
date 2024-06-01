@@ -31,10 +31,10 @@ export class ClientsService {
     const source = 'ClientsService -> create()';
 
     try {
-      const codeIncreased = (await this.clientModel.countDocuments()) + 1;
+      const clientsCount = await this.clientModel.countDocuments();
       return this.clientModel.create({
         ...createClientDto,
-        code: codeIncreased,
+        clientNumber: clientsCount + 1,
       });
     } catch (error) {
       this.logger.error({
