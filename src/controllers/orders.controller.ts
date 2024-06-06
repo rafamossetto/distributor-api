@@ -13,14 +13,14 @@ import { OrderDto } from 'src/dto';
 import { OrderService } from 'src/services/orders.service';
 import { Order, Product } from 'src/schemas';
 
-@Controller()
+@Controller('orders')
 @ApiTags('orders')
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
 
   constructor(private readonly orderService: OrderService) {}
 
-  @Get('orders')
+  @Get()
   @ApiResponse({ status: 200, description: 'Get Buy Orders' })
   async getOrders(): Promise<Order[]> {
     const source = 'OrderController -> getOrders()';
@@ -41,7 +41,7 @@ export class OrderController {
     return response;
   }
 
-  @Get('orders/:date')
+  @Get(':date')
   @ApiResponse({
     status: 200,
     description: 'Get Buy Orders by Date - ex: 2024-12-20',
@@ -65,7 +65,7 @@ export class OrderController {
     return response;
   }
 
-  @Post('orders')
+  @Post('')
   @ApiResponse({ status: 201, description: 'Create Buy Order' })
   async createOrder(@Body() body: OrderDto): Promise<Order> {
     const source = 'OrderController -> createOrder()';
@@ -87,7 +87,7 @@ export class OrderController {
     return response;
   }
 
-  @Get('orders/:id')
+  @Get(':id')
   @Render('order')
   @ApiResponse({ status: 200, description: 'Get Buy Order By Id' })
   async getOrder(@Param('id') orderId: string): Promise<{
