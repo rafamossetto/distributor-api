@@ -5,11 +5,12 @@ import {
   Logger,
   Param,
   Post,
+  Query,
   Render,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderDto } from 'src/dto';
-import { OrderService } from 'src/services/order.service';
+import { OrderService } from 'src/services/orders.service';
 import { Order, Product } from 'src/schemas';
 
 @Controller()
@@ -19,20 +20,65 @@ export class OrderController {
 
   constructor(private readonly orderService: OrderService) {}
 
+  @Get('orders')
+  @ApiResponse({ status: 200, description: 'Get Buy Orders' })
+  async getOrders(): Promise<Order[]> {
+    const source = 'OrderController -> getOrders()';
+
+    this.logger.log({
+      message: '[REQ] GET /orders - getOrders()',
+      source,
+    });
+
+    const response = await this.orderService.getAll();
+
+    this.logger.log({
+      message: '[RES] GET /orders - getOrders()',
+      response,
+      source,
+    });
+
+    return response;
+  }
+
+  @Get('orders/:date')
+  @ApiResponse({
+    status: 200,
+    description: 'Get Buy Orders by Date - ex: 2024-12-20',
+  })
+  async getOrderByDate(@Param('date') date: string): Promise<Order> {
+    const source = 'OrderController -> getOrderByDate()';
+
+    this.logger.log({
+      message: `[REQ] GET /orders/${date} - getOrderByDate()`,
+      source,
+    });
+
+    const response = await this.orderService.getByDate(date);
+
+    this.logger.log({
+      message: `[RES] GET /orders/${date} - getOrderByDate()`,
+      response,
+      source,
+    });
+
+    return response;
+  }
+
   @Post('orders')
   @ApiResponse({ status: 201, description: 'Create Buy Order' })
   async createOrder(@Body() body: OrderDto): Promise<Order> {
     const source = 'OrderController -> createOrder()';
 
     this.logger.log({
-      message: '[REQ] POST /order - createOrder()',
+      message: '[REQ] POST /orders - createOrder()',
       source,
       body,
     });
     const response = await this.orderService.create(body);
 
     this.logger.log({
-      message: '[RES] POST /order - createOrder()',
+      message: '[RES] POST /orders - createOrder()',
       response,
       body,
       source,
@@ -53,7 +99,7 @@ export class OrderController {
     const source = 'OrderController -> getOrder()';
 
     this.logger.log({
-      message: `[REQ] GET /order/${orderId} - getOrder()`,
+      message: `[REQ] GET /orders/${orderId} - getOrder()`,
       source,
       orderId,
     });
@@ -61,7 +107,7 @@ export class OrderController {
       await this.orderService.getById(orderId);
 
     this.logger.log({
-      message: `[RES] GET /order/${orderId} - getOrder()`,
+      message: `[RES] GET /orders/${orderId} - getOrder()`,
       response: products,
       orderId,
       source,

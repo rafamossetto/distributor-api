@@ -16,10 +16,7 @@ export class OrderService {
     const source = 'OrderService -> getAll()';
 
     try {
-      return this.orderModel
-        .find()
-        .sort(this.GET_ALL_SORT_PARAM)
-        .exec();
+      return this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -34,9 +31,7 @@ export class OrderService {
     const source = 'OrderService -> getAll()';
 
     try {
-      return this.orderModel
-        .findOne()
-        .exec();
+      return this.orderModel.findOne().exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
