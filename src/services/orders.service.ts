@@ -27,11 +27,18 @@ export class OrderService {
     }
   }
 
-  getByDate(date: string): Promise<HydratedDocument<Order>> {
+  getByDate(date: string): Promise<HydratedDocument<Order>[]> {
     const source = 'OrderService -> getAll()';
+    const dateInstance = new Date(date);
+    const filterParams: FilterQuery<Order> = {
+      date: {
+        $gte: new Date(date),
+        $lte: `${dateInstance.toISOString().split('T')[0]}T23:59:59.999Z`,
+      }
+    };
 
     try {
-      return this.orderModel.findOne().exec();
+      return this.orderModel.find(filterParams).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,

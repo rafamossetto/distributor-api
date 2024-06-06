@@ -46,7 +46,7 @@ export class OrderController {
     status: 200,
     description: 'Get Buy Orders by Date - ex: 2024-12-20',
   })
-  async getOrderByDate(@Param('date') date: string): Promise<Order> {
+  async getOrderByDate(@Param('date') date: string): Promise<Order[]> {
     const source = 'OrderController -> getOrderByDate()';
 
     this.logger.log({

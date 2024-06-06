@@ -63,11 +63,16 @@ export class RoutesService {
   update(updateRouteDto: UpdateRouteDto): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> update()';
     try {
-      const { id, clientId, status } = updateRouteDto;
+      const { id, clientId, status, clients } = updateRouteDto;
 
       return this.routesModel.findByIdAndUpdate(
         id,
-        { $set: { 'clients.$[elem].status': status } },
+        {
+          $set: {
+            'clients.$[elem].status': status,
+            'clients': clients
+          },
+        },
         {
           arrayFilters: [{ 'elem._id': clientId }],
           multi: true,
