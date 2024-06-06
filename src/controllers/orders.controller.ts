@@ -1,21 +1,27 @@
-import { Body, Controller, Get, Logger, Param, Post, Render } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Post,
+  Render,
+} from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderDto } from 'src/dto';
 import { OrderService } from 'src/services/order.service';
 import { Order, Product } from 'src/schemas';
 
 @Controller()
-@ApiTags('order')
+@ApiTags('orders')
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
 
-  constructor(private readonly orderService: OrderService) { }
+  constructor(private readonly orderService: OrderService) {}
 
-  @Post('order')
+  @Post('orders')
   @ApiResponse({ status: 201, description: 'Create Buy Order' })
-  async createOrder(
-    @Body() body: OrderDto,
-  ): Promise<Order> {
+  async createOrder(@Body() body: OrderDto): Promise<Order> {
     const source = 'OrderController -> createOrder()';
 
     this.logger.log({
@@ -35,16 +41,14 @@ export class OrderController {
     return response;
   }
 
-  @Get('order/:id')
+  @Get('orders/:id')
   @Render('order')
   @ApiResponse({ status: 200, description: 'Get Buy Order By Id' })
-  async getOrder(
-    @Param('id') orderId: string,
-  ): Promise<{
-    products: Product[],
-    documentNumber: number,
-    clientNumber: number,
-    date: string
+  async getOrder(@Param('id') orderId: string): Promise<{
+    products: Product[];
+    documentNumber: number;
+    clientNumber: number;
+    date: string;
   }> {
     const source = 'OrderController -> getOrder()';
 
@@ -53,12 +57,8 @@ export class OrderController {
       source,
       orderId,
     });
-    const {
-      products,
-      date,
-      documentNumber,
-      clientNumber,
-    } = await this.orderService.getById(orderId);
+    const { products, date, documentNumber, clientNumber } =
+      await this.orderService.getById(orderId);
 
     this.logger.log({
       message: `[RES] GET /order/${orderId} - getOrder()`,

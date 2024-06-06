@@ -65,7 +65,7 @@ export class PricesListService {
     }
   }
 
-  async updateProductPrices(limit: number = 10): Promise<void> {
+  async updateProductPrices(limit = 10): Promise<void> {
     const source = 'PricesListService -> updateProductPrices()';
     try {
       const allPercentsList = (await this.pricesListModel.find().exec()).map(
@@ -75,16 +75,23 @@ export class PricesListService {
       let skip = 0;
       let allDocumentsProcessed = false;
       while (!allDocumentsProcessed) {
-        const products = await this.productModel.find().skip(skip).limit(limit).exec();
+        const products = await this.productModel
+          .find()
+          .skip(skip)
+          .limit(limit)
+          .exec();
 
         if (!products.length) {
           allDocumentsProcessed = true;
           continue;
-        };
+        }
 
-        const arr = products.map(product => {
+        const arr = products.map((product) => {
           const [basePrice] = product.prices;
-          const increasedPrices = getPricesWithPercent(basePrice, allPercentsList);
+          const increasedPrices = getPricesWithPercent(
+            basePrice,
+            allPercentsList,
+          );
 
           product.prices = [basePrice, ...increasedPrices];
 
@@ -99,8 +106,7 @@ export class PricesListService {
         await this.productModel.bulkWrite(arr);
 
         skip += limit;
-      };
-
+      }
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -108,8 +114,8 @@ export class PricesListService {
         source,
       });
       throw new HttpException(error.toString(), 500);
-    };
-  };
+    }
+  }
 
   delete(number: number) {
     const source = 'PricesListService -> deleteOne()';

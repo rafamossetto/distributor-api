@@ -7,7 +7,7 @@ export type OrderDocument = HydratedDocument<Order>;
 enum OrderTypeEnum {
   ORDER = 'order',
   REMIT = 'remit',
-};
+}
 
 @Schema({ versionKey: false })
 export class Order {

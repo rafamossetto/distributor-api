@@ -1,12 +1,17 @@
-import { IsNotEmpty, IsString, ArrayNotEmpty, ValidateNested, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  ArrayNotEmpty,
+  ValidateNested,
+  IsNumber,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { Product } from 'src/schemas';
-
 
 class ProductOrderDto extends Product {
   @IsString()
   @IsNotEmpty()
-  code: number
+  code: number;
 }
 
 export class OrderDto {
