@@ -40,7 +40,7 @@ export class RouteDto {
   date: Date;
 }
 
-export class UpdateRouteDto {
+export class UpdateRouteDto extends RouteDto {
   @IsNotEmpty()
   @IsString()
   id: string;

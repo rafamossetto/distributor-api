@@ -1,6 +1,6 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { HydratedDocument, Model } from 'mongoose';
+import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { OrderDto } from 'src/dto/order.dto';
 import { Order } from 'src/schemas';
 
@@ -16,7 +16,27 @@ export class OrderService {
     const source = 'OrderService -> getAll()';
 
     try {
-      return this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+      return this.orderModel
+        .find()
+        .sort(this.GET_ALL_SORT_PARAM)
+        .exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
+
+  getByDate(date: string): Promise<HydratedDocument<Order>> {
+    const source = 'OrderService -> getAll()';
+
+    try {
+      return this.orderModel
+        .findOne()
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
