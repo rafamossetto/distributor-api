@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
-import { RouteDto, UpdateRouteDto } from 'src/dto';
+import { RouteDto, UpdateClientsRouteDto, UpdateRouteDto } from 'src/dto';
 import { Route } from 'src/schemas';
 import { RoutesService } from 'src/services';
 
@@ -101,9 +101,13 @@ export class RoutesController {
     return response;
   }
   @Put('/clients')
-  @ApiResponse({ status: 201, description: 'Update Route Clients', type: Route })
+  @ApiResponse({
+    status: 201,
+    description: 'Update Route Clients',
+    type: Route,
+  })
   async updateRouteClients(
-    @Body() body: UpdateRouteDto,
+    @Body() body: UpdateClientsRouteDto,
   ): Promise<HydratedDocument<Route>> {
     const source = 'RoutesController -> updateRoute()';
 

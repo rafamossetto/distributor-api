@@ -42,12 +42,6 @@ export class RouteDto {
 }
 
 export class UpdateRouteDto {
-  @IsArray()
-  @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => ClientDto)
-  clients?: ClientDto[];
-
   @IsNotEmpty()
   @IsString()
   id: string;
@@ -59,4 +53,10 @@ export class UpdateRouteDto {
   @IsNotEmpty()
   @IsEnum(ClientStatusEnum)
   status: ClientStatusEnum;
+}
+
+export class UpdateClientsRouteDto extends RouteDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 }

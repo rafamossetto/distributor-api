@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
-import { RouteDto, UpdateRouteDto } from 'src/dto';
+import { RouteDto, UpdateClientsRouteDto, UpdateRouteDto } from 'src/dto';
 import { Route } from 'src/schemas';
 
 @Injectable()
@@ -60,20 +60,21 @@ export class RoutesService {
     }
   }
 
-  updateRouteClients(updateRouteDto: UpdateRouteDto): Promise<HydratedDocument<Route>> {
+  updateRouteClients(
+    updateRouteDto: UpdateClientsRouteDto,
+  ): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> update()';
     try {
-      const { clients, clientId, id } = updateRouteDto;
+      const { clients, id } = updateRouteDto;
 
       return this.routesModel.findByIdAndUpdate(
         id,
         {
           $set: {
-            'clients': clients,
+            clients: clients,
           },
         },
         {
-          arrayFilters: [{ 'elem._id': clientId }],
           multi: true,
           new: true,
         },

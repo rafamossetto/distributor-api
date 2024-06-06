@@ -5,7 +5,6 @@ import {
   Logger,
   Param,
   Post,
-  Query,
   Render,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';

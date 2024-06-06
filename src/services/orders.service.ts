@@ -34,7 +34,7 @@ export class OrderService {
       date: {
         $gte: new Date(date),
         $lte: `${dateInstance.toISOString().split('T')[0]}T23:59:59.999Z`,
-      }
+      },
     };
 
     try {
