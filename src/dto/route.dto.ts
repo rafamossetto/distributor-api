@@ -7,6 +7,7 @@ import {
   IsString,
   ArrayNotEmpty,
   IsEnum,
+  IsOptional,
 } from 'class-validator';
 import { ClientStatusEnum } from 'src/schemas';
 
@@ -40,7 +41,13 @@ export class RouteDto {
   date: Date;
 }
 
-export class UpdateRouteDto extends RouteDto {
+export class UpdateRouteDto {
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => ClientDto)
+  clients?: ClientDto[];
+
   @IsNotEmpty()
   @IsString()
   id: string;

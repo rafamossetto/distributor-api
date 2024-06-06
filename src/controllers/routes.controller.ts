@@ -100,6 +100,29 @@ export class RoutesController {
 
     return response;
   }
+  @Put('/clients')
+  @ApiResponse({ status: 201, description: 'Update Route Clients', type: Route })
+  async updateRouteClients(
+    @Body() body: UpdateRouteDto,
+  ): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesController -> updateRoute()';
+
+    this.logger.log({
+      message: '[REQ] PUT /routes - updateRoute()',
+      source,
+      body,
+    });
+
+    const response = await this.routesService.updateRouteClients(body);
+
+    this.logger.log({
+      message: '[RES] PUT /routes - updateRoute()',
+      response,
+      source,
+    });
+
+    return response;
+  }
 
   @Delete(':id')
   @ApiResponse({ status: 201, description: 'Delete Route', type: Boolean })

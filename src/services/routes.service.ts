@@ -60,17 +60,44 @@ export class RoutesService {
     }
   }
 
+  updateRouteClients(updateRouteDto: UpdateRouteDto): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesService -> update()';
+    try {
+      const { clients, clientId, id } = updateRouteDto;
+
+      return this.routesModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            'clients': clients,
+          },
+        },
+        {
+          arrayFilters: [{ 'elem._id': clientId }],
+          multi: true,
+          new: true,
+        },
+      );
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
   update(updateRouteDto: UpdateRouteDto): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> update()';
     try {
-      const { id, clientId, status, clients } = updateRouteDto;
+      const { id, clientId, status } = updateRouteDto;
 
       return this.routesModel.findByIdAndUpdate(
         id,
         {
           $set: {
             'clients.$[elem].status': status,
-            'clients': clients
           },
         },
         {
