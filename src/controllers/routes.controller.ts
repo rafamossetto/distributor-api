@@ -12,7 +12,12 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
-import { RouteDto, UpdateClientsRouteDto, UpdateRouteDto } from 'src/dto';
+import {
+  RouteDto,
+  UpdateStatusClientsDto,
+  UpdateClientsRouteDto,
+  UpdateRouteStatusDto,
+} from 'src/dto';
 import { Route } from 'src/schemas';
 import { RoutesService } from 'src/services';
 
@@ -77,29 +82,56 @@ export class RoutesController {
     return response;
   }
 
-  @Put()
-  @ApiResponse({ status: 201, description: 'Update Route', type: Route })
-  async updateRoute(
-    @Body() body: UpdateRouteDto,
+  @Put('status')
+  @ApiResponse({ status: 201, description: 'Update Route Status', type: Route })
+  async updateRouteStatus(
+    @Body() body: UpdateRouteStatusDto,
   ): Promise<HydratedDocument<Route>> {
-    const source = 'RoutesController -> updateRoute()';
+    const source = 'RoutesController -> updateRouteStatus()';
+
+    const { id } = body;
 
     this.logger.log({
-      message: '[REQ] PUT /routes - updateRoute()',
+      message: '[REQ] PUT /routes/status - updateRouteStatus()',
       source,
       body,
     });
 
-    const response = await this.routesService.update(body);
+    const response = await this.routesService.updateRouteStatus(id, body);
 
     this.logger.log({
-      message: '[RES] PUT /routes - updateRoute()',
+      message: '[RES] PUT /routes/status - updateRouteStatus()',
       response,
       source,
     });
 
     return response;
   }
+
+  @Put()
+  @ApiResponse({ status: 201, description: 'Update Route', type: Route })
+  async updateClientStatus(
+    @Body() body: UpdateStatusClientsDto,
+  ): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesController -> updateClientStatus()';
+
+    this.logger.log({
+      message: '[REQ] PUT /routes - updateClientStatus()',
+      source,
+      body,
+    });
+
+    const response = await this.routesService.updateStatusClients(body);
+
+    this.logger.log({
+      message: '[RES] PUT /routes - updateClientStatus()',
+      response,
+      source,
+    });
+
+    return response;
+  }
+
   @Put('/clients')
   @ApiResponse({
     status: 201,
@@ -109,10 +141,10 @@ export class RoutesController {
   async updateRouteClients(
     @Body() body: UpdateClientsRouteDto,
   ): Promise<HydratedDocument<Route>> {
-    const source = 'RoutesController -> updateRoute()';
+    const source = 'RoutesController -> updateRouteClients()';
 
     this.logger.log({
-      message: '[REQ] PUT /routes - updateRoute()',
+      message: '[REQ] PUT /routes - updateRouteClients()',
       source,
       body,
     });
@@ -120,7 +152,7 @@ export class RoutesController {
     const response = await this.routesService.updateRouteClients(body);
 
     this.logger.log({
-      message: '[RES] PUT /routes - updateRoute()',
+      message: '[RES] PUT /routes - updateRouteClients()',
       response,
       source,
     });

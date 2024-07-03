@@ -64,7 +64,7 @@ export class OrderController {
     return response;
   }
 
-  @Post('')
+  @Post()
   @ApiResponse({ status: 201, description: 'Create Buy Order' })
   async createOrder(@Body() body: OrderDto): Promise<Order> {
     const source = 'OrderController -> createOrder()';

@@ -26,6 +26,9 @@ export class Route {
 
   @Prop({ required: true, type: Date })
   date: Date;
+
+  @Prop({ required: true, type: Boolean })
+  open: boolean;
 }
 
 export const RouteSchema = SchemaFactory.createForClass(Route);

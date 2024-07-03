@@ -7,7 +7,7 @@ import {
   IsString,
   ArrayNotEmpty,
   IsEnum,
-  IsOptional,
+  IsBoolean,
 } from 'class-validator';
 import { ClientStatusEnum } from 'src/schemas';
 
@@ -41,7 +41,7 @@ export class RouteDto {
   date: Date;
 }
 
-export class UpdateRouteDto {
+export class UpdateStatusClientsDto {
   @IsNotEmpty()
   @IsString()
   id: string;
@@ -59,4 +59,14 @@ export class UpdateClientsRouteDto extends RouteDto {
   @IsNotEmpty()
   @IsString()
   id: string;
+}
+
+export class UpdateRouteStatusDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  open: boolean;
 }

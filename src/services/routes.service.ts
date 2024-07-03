@@ -1,7 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
-import { RouteDto, UpdateClientsRouteDto, UpdateRouteDto } from 'src/dto';
+import {
+  RouteDto,
+  UpdateClientsRouteDto,
+  UpdateRouteStatusDto,
+  UpdateStatusClientsDto,
+} from 'src/dto';
 import { Route } from 'src/schemas';
 
 @Injectable()
@@ -49,7 +54,10 @@ export class RoutesService {
   create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> create()';
     try {
-      return this.routesModel.create(createRouteDto);
+      return this.routesModel.create({
+        ...createRouteDto,
+        open: true,
+      });
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -63,7 +71,7 @@ export class RoutesService {
   updateRouteClients(
     updateRouteDto: UpdateClientsRouteDto,
   ): Promise<HydratedDocument<Route>> {
-    const source = 'RoutesService -> update()';
+    const source = 'RoutesService -> updateRouteClients()';
     try {
       const { clients, id } = updateRouteDto;
 
@@ -89,8 +97,10 @@ export class RoutesService {
     }
   }
 
-  update(updateRouteDto: UpdateRouteDto): Promise<HydratedDocument<Route>> {
-    const source = 'RoutesService -> update()';
+  updateStatusClients(
+    updateRouteDto: UpdateStatusClientsDto,
+  ): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesService -> updateStatusClients()';
     try {
       const { id, clientId, status } = updateRouteDto;
 
@@ -107,6 +117,22 @@ export class RoutesService {
           new: true,
         },
       );
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
+  updateRouteStatus(id: string, updateRouteStatusDto: UpdateRouteStatusDto) {
+    const source = 'RoutesService -> updateRouteStatus()';
+    try {
+      return this.routesModel.findByIdAndUpdate(id, updateRouteStatusDto, {
+        new: true,
+      });
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
