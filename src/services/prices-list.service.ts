@@ -131,6 +131,19 @@ export class PricesListService {
     }
   }
 
+  async bulkUpdatePricesListsNumber() {
+    const pricesListDocs = await this.pricesListModel.find().sort({ percent: 1 }).exec();
+
+    const bulkOps = pricesListDocs.map((doc, index) => ({
+      updateOne: {
+        filter: { _id: doc._id },
+        update: { number: index + 1 },
+      },
+    }));
+
+    return this.pricesListModel.bulkWrite(bulkOps);
+  };
+
   deleteAll() {
     const source = 'PricesListService -> deleteAll()';
     try {
