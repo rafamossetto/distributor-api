@@ -127,10 +127,6 @@ export class PricesListController {
       body,
     });
 
-    if (!number) {
-      return this.pricesListService.deleteAll();
-    }
-
     const response = await this.pricesListService.delete(number);
 
     const bulkUpdateResponse = await this.pricesListService.bulkUpdatePricesListsNumber();

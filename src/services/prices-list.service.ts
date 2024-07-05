@@ -117,9 +117,11 @@ export class PricesListService {
     }
   }
 
-  delete(number: number) {
+  async delete(number: number) {
     const source = 'PricesListService -> deleteOne()';
     try {
+      const docsCount = await this.pricesListModel.countDocuments();
+      if (docsCount === 1) throw new Error('Prices List must have one value, operation denied');
       return this.pricesListModel.deleteOne({ number });
     } catch (error) {
       this.logger.error({
