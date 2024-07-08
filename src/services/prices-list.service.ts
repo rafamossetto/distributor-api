@@ -19,7 +19,10 @@ export class PricesListService {
   async getAll(): Promise<HydratedDocument<PricesList>[]> {
     const source = 'PricesListService -> getAll()';
     try {
-      return await this.pricesListModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+      return await this.pricesListModel
+        .find()
+        .sort(this.GET_ALL_SORT_PARAM)
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -51,10 +54,18 @@ export class PricesListService {
     }
   }
 
-  async update({ number, percent }: { number: number; percent: number }): Promise<UpdateWriteOpResult> {
+  async update({
+    number,
+    percent,
+  }: {
+    number: number;
+    percent: number;
+  }): Promise<UpdateWriteOpResult> {
     const source = 'PricesListService -> update()';
     try {
-      return await this.pricesListModel.updateOne({ number }, { percent }).exec();
+      return await this.pricesListModel
+        .updateOne({ number }, { percent })
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -121,7 +132,10 @@ export class PricesListService {
     const source = 'PricesListService -> deleteOne()';
     try {
       const docsCount = await this.pricesListModel.countDocuments();
-      if (docsCount === 1) throw new Error('Prices List must have at least one value, operation denied');
+      if (docsCount === 1)
+        throw new Error(
+          'Prices List must have at least one value, operation denied',
+        );
       return await this.pricesListModel.deleteOne({ number }).exec();
     } catch (error) {
       this.logger.error({
@@ -136,7 +150,10 @@ export class PricesListService {
   async bulkUpdatePricesListsNumber(): Promise<any> {
     const source = 'PricesListService -> bulkUpdatePricesListsNumber()';
     try {
-      const pricesListDocs = await this.pricesListModel.find().sort({ percent: 1 }).exec();
+      const pricesListDocs = await this.pricesListModel
+        .find()
+        .sort({ percent: 1 })
+        .exec();
 
       const bulkOps = pricesListDocs.map((doc, index) => ({
         updateOne: {

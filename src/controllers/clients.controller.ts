@@ -121,7 +121,9 @@ export class ClientsController {
   }
 
   @Delete()
-  async deleteClients(@Body() body: { admin: boolean }): Promise<{ deletedCount?: number }> {
+  async deleteClients(
+    @Body() body: { admin: boolean },
+  ): Promise<{ deletedCount?: number }> {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 

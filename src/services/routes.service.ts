@@ -75,13 +75,15 @@ export class RoutesService {
     try {
       const { clients, id } = updateRouteDto;
 
-      return await this.routesModel.findByIdAndUpdate(
-        id,
-        {
-          $set: { clients },
-        },
-        { multi: true, new: true },
-      ).exec();
+      return await this.routesModel
+        .findByIdAndUpdate(
+          id,
+          {
+            $set: { clients },
+          },
+          { multi: true, new: true },
+        )
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -99,17 +101,19 @@ export class RoutesService {
     try {
       const { id, clientId, status } = updateRouteDto;
 
-      return await this.routesModel.findByIdAndUpdate(
-        id,
-        {
-          $set: { 'clients.$[elem].status': status },
-        },
-        {
-          arrayFilters: [{ 'elem._id': clientId }],
-          multi: true,
-          new: true,
-        },
-      ).exec();
+      return await this.routesModel
+        .findByIdAndUpdate(
+          id,
+          {
+            $set: { 'clients.$[elem].status': status },
+          },
+          {
+            arrayFilters: [{ 'elem._id': clientId }],
+            multi: true,
+            new: true,
+          },
+        )
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -126,9 +130,11 @@ export class RoutesService {
   ): Promise<HydratedDocument<Route> | null> {
     const source = 'RoutesService -> updateRouteStatus()';
     try {
-      return await this.routesModel.findByIdAndUpdate(id, updateRouteStatusDto, {
-        new: true,
-      }).exec();
+      return await this.routesModel
+        .findByIdAndUpdate(id, updateRouteStatusDto, {
+          new: true,
+        })
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -164,11 +170,13 @@ export class RoutesService {
     const source = 'RoutesService -> deleteClientOfRoute()';
 
     try {
-      return await this.routesModel.findOneAndUpdate(
-        { _id: routeId },
-        { $pull: { clients: { _id: clientId } } },
-        { new: true },
-      ).exec();
+      return await this.routesModel
+        .findOneAndUpdate(
+          { _id: routeId },
+          { $pull: { clients: { _id: clientId } } },
+          { new: true },
+        )
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,

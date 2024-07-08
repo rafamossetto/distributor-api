@@ -33,7 +33,9 @@ export class OrderService {
     const filterParams: FilterQuery<Order> = {
       date: {
         $gte: new Date(date),
-        $lte: new Date(`${dateInstance.toISOString().split('T')[0]}T23:59:59.999Z`),
+        $lte: new Date(
+          `${dateInstance.toISOString().split('T')[0]}T23:59:59.999Z`,
+        ),
       },
     };
 

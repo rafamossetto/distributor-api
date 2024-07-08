@@ -129,7 +129,8 @@ export class PricesListController {
 
     const response = await this.pricesListService.delete(number);
 
-    const bulkUpdateResponse = await this.pricesListService.bulkUpdatePricesListsNumber();
+    const bulkUpdateResponse =
+      await this.pricesListService.bulkUpdatePricesListsNumber();
 
     this.logger.log({
       message: '[RES] DELETE /pricesList - deleteOne()',

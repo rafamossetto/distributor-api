@@ -54,7 +54,9 @@ export class ClientsService {
     const source = 'ClientsService -> update()';
 
     try {
-      return this.clientModel.findByIdAndUpdate(id, updateParams, { new: true }).exec();
+      return this.clientModel
+        .findByIdAndUpdate(id, updateParams, { new: true })
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,

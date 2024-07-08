@@ -72,7 +72,9 @@ export class ProductsService {
     const source = 'ProductsService -> update()';
 
     try {
-      return this.productModel.findByIdAndUpdate(id, updateParams, { new: true }).exec();
+      return this.productModel
+        .findByIdAndUpdate(id, updateParams, { new: true })
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,

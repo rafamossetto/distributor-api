@@ -87,7 +87,9 @@ export class ProductsController {
   }
 
   @Delete()
-  async deleteProducts(@Body() body: { admin: boolean }): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  async deleteProducts(
+    @Body() body: { admin: boolean },
+  ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 

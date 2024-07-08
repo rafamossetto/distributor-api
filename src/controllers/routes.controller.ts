@@ -192,7 +192,8 @@ export class RoutesController {
     const source = 'RoutesController -> deleteClientFromRoute()';
 
     this.logger.log({
-      message: '[REQ] DELETE /routes/:routeId/:clientId - deleteClientFromRoute()',
+      message:
+        '[REQ] DELETE /routes/:routeId/:clientId - deleteClientFromRoute()',
       source,
       routeId,
       clientId,
@@ -204,7 +205,8 @@ export class RoutesController {
     );
 
     this.logger.log({
-      message: '[RES] DELETE /routes/:routeId/:clientId - deleteClientFromRoute()',
+      message:
+        '[RES] DELETE /routes/:routeId/:clientId - deleteClientFromRoute()',
       response,
       source,
       routeId,
@@ -215,17 +217,19 @@ export class RoutesController {
   }
 
   @Delete()
-  async deleteRoutes(@Body() body: { admin: boolean }): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  async deleteRoutes(
+    @Body() body: { admin: boolean },
+  ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 
     const response = await this.routesService.deleteAll();
-    
+
     this.logger.log({
       message: '[RES] DELETE /routes - deleteRoutes()',
       response,
     });
-    
+
     return response;
   }
 }
