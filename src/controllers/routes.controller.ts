@@ -32,14 +32,12 @@ export class RoutesController {
   @ApiResponse({
     status: 200,
     description: 'List Route By startDate & endDate',
-    type: Route,
+    type: [Route],
   })
   async getAllRoutes(
     @Query() params?: { startDate?: string; endDate?: string },
-  ): Promise<Route> {
+  ): Promise<Route[]> {
     const source = 'RoutesController -> getAllRoutes()';
-
-    const { startDate, endDate } = params;
 
     this.logger.log({
       message: '[REQ] GET /routes - getAllRoutes()',
@@ -47,7 +45,7 @@ export class RoutesController {
       source,
     });
 
-    const [response] = await this.routesService.getAll({ startDate, endDate });
+    const response = await this.routesService.getAll(params);
 
     this.logger.log({
       message: '[RES] GET /routes - getAllRoutes()',
@@ -89,15 +87,13 @@ export class RoutesController {
   ): Promise<HydratedDocument<Route>> {
     const source = 'RoutesController -> updateRouteStatus()';
 
-    const { id } = body;
-
     this.logger.log({
       message: '[REQ] PUT /routes/status - updateRouteStatus()',
       source,
       body,
     });
 
-    const response = await this.routesService.updateRouteStatus(id, body);
+    const response = await this.routesService.updateRouteStatus(body.id, body);
 
     this.logger.log({
       message: '[RES] PUT /routes/status - updateRouteStatus()',
@@ -144,7 +140,7 @@ export class RoutesController {
     const source = 'RoutesController -> updateRouteClients()';
 
     this.logger.log({
-      message: '[REQ] PUT /routes - updateRouteClients()',
+      message: '[REQ] PUT /routes/clients - updateRouteClients()',
       source,
       body,
     });
@@ -152,7 +148,7 @@ export class RoutesController {
     const response = await this.routesService.updateRouteClients(body);
 
     this.logger.log({
-      message: '[RES] PUT /routes - updateRouteClients()',
+      message: '[RES] PUT /routes/clients - updateRouteClients()',
       response,
       source,
     });
@@ -166,7 +162,7 @@ export class RoutesController {
     const source = 'RoutesController -> deleteRoute()';
 
     this.logger.log({
-      message: '[REQ] DELETE /routes - deleteRoute()',
+      message: '[REQ] DELETE /routes/:id - deleteRoute()',
       source,
       id,
     });
@@ -174,7 +170,7 @@ export class RoutesController {
     const response = await this.routesService.delete(id);
 
     this.logger.log({
-      message: '[RES] DELETE /routes - deleteRoute()',
+      message: '[RES] DELETE /routes/:id - deleteRoute()',
       response,
       source,
       id,
@@ -193,10 +189,10 @@ export class RoutesController {
     @Param('routeId') routeId: string,
     @Param('clientId') clientId: string,
   ): Promise<HydratedDocument<Route>> {
-    const source = 'RoutesController -> deleteRoute()';
+    const source = 'RoutesController -> deleteClientFromRoute()';
 
     this.logger.log({
-      message: '[REQ] DELETE /routes - deleteRoute()',
+      message: '[REQ] DELETE /routes/:routeId/:clientId - deleteClientFromRoute()',
       source,
       routeId,
       clientId,
@@ -208,7 +204,7 @@ export class RoutesController {
     );
 
     this.logger.log({
-      message: '[RES] DELETE /routes - deleteRoute()',
+      message: '[RES] DELETE /routes/:routeId/:clientId - deleteClientFromRoute()',
       response,
       source,
       routeId,
@@ -219,10 +215,17 @@ export class RoutesController {
   }
 
   @Delete()
-  async deleteRoutes(@Body() body: { admin: boolean }) {
+  async deleteRoutes(@Body() body: { admin: boolean }): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 
-    return this.routesService.deleteAll();
+    const response = await this.routesService.deleteAll();
+    
+    this.logger.log({
+      message: '[RES] DELETE /routes - deleteRoutes()',
+      response,
+    });
+    
+    return response;
   }
 }

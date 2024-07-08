@@ -50,11 +50,11 @@ export class ClientsService {
   async update(
     id: string,
     updateParams: UpdateClientDto,
-  ): Promise<HydratedDocument<Client>> {
+  ): Promise<HydratedDocument<Client> | null> {
     const source = 'ClientsService -> update()';
 
     try {
-      return this.clientModel.findByIdAndUpdate(id, updateParams);
+      return this.clientModel.findByIdAndUpdate(id, updateParams, { new: true }).exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -65,13 +65,14 @@ export class ClientsService {
       throw new HttpException(error.message, 500);
     }
   }
+
   async delete(
     id: string,
   ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const source = 'ClientsService -> delete()';
 
     try {
-      return this.clientModel.deleteOne({ _id: id });
+      return this.clientModel.deleteOne({ _id: id }).exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -83,7 +84,19 @@ export class ClientsService {
     }
   }
 
-  deleteAll() {
-    return this.clientModel.deleteMany({});
+  async deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    const source = 'ClientsService -> deleteAll()';
+
+    try {
+      return this.clientModel.deleteMany({}).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
+    }
   }
 }

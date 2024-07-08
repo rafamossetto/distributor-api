@@ -67,13 +67,12 @@ export class ProductsService {
 
   async update(
     id: string,
-    //ToDo: complete with interface
-    updateParams: any,
-  ): Promise<HydratedDocument<Product>> {
+    updateParams: Partial<ProductDto>,
+  ): Promise<HydratedDocument<Product> | null> {
     const source = 'ProductsService -> update()';
 
     try {
-      return this.productModel.findByIdAndUpdate(id, updateParams);
+      return this.productModel.findByIdAndUpdate(id, updateParams, { new: true }).exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -91,7 +90,7 @@ export class ProductsService {
     const source = 'ProductsService -> delete()';
 
     try {
-      return this.productModel.deleteOne({ _id: id });
+      return this.productModel.deleteOne({ _id: id }).exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -103,7 +102,19 @@ export class ProductsService {
     }
   }
 
-  deleteAll() {
-    return this.productModel.deleteMany({});
+  async deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    const source = 'ProductsService -> deleteAll()';
+
+    try {
+      return this.productModel.deleteMany({}).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
+    }
   }
 }

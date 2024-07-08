@@ -43,7 +43,7 @@ export class ProductsController {
 
   @Post()
   @ApiResponse({ status: 201, description: 'Create Product', type: Product })
-  async createProduct(@Body() productDto: ProductDto) {
+  async createProduct(@Body() productDto: ProductDto): Promise<Product> {
     const source = 'ProductsController -> createProduct()';
 
     this.logger.log({
@@ -87,7 +87,7 @@ export class ProductsController {
   }
 
   @Delete()
-  async deleteProducts(@Body() body: { admin: boolean }) {
+  async deleteProducts(@Body() body: { admin: boolean }): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const { admin } = body;
     if (!admin) throw new ForbiddenException('Not admin access :(');
 

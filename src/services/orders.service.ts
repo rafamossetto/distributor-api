@@ -12,11 +12,11 @@ export class OrderService {
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  getAll(): Promise<HydratedDocument<Order>[]> {
+  async getAll(): Promise<HydratedDocument<Order>[]> {
     const source = 'OrderService -> getAll()';
 
     try {
-      return this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+      return await this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -27,18 +27,18 @@ export class OrderService {
     }
   }
 
-  getByDate(date: string): Promise<HydratedDocument<Order>[]> {
-    const source = 'OrderService -> getAll()';
+  async getByDate(date: string): Promise<HydratedDocument<Order>[]> {
+    const source = 'OrderService -> getByDate()';
     const dateInstance = new Date(date);
     const filterParams: FilterQuery<Order> = {
       date: {
         $gte: new Date(date),
-        $lte: `${dateInstance.toISOString().split('T')[0]}T23:59:59.999Z`,
+        $lte: new Date(`${dateInstance.toISOString().split('T')[0]}T23:59:59.999Z`),
       },
     };
 
     try {
-      return this.orderModel.find(filterParams).exec();
+      return await this.orderModel.find(filterParams).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -49,11 +49,11 @@ export class OrderService {
     }
   }
 
-  getById(id: string): Promise<HydratedDocument<Order>> {
+  async getById(id: string): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> getById()';
 
     try {
-      return this.orderModel.findById(id).exec();
+      return await this.orderModel.findById(id).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -70,7 +70,7 @@ export class OrderService {
     const orderCount = await this.orderModel.countDocuments();
 
     try {
-      return this.orderModel.create({
+      return await this.orderModel.create({
         ...createOrderDto,
         documentNumber: orderCount + 1,
         date: new Date(),
@@ -85,7 +85,15 @@ export class OrderService {
     }
   }
 
-  deleteAll() {
-    return this.orderModel.deleteMany({});
+  async deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    try {
+      return await this.orderModel.deleteMany({}).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `OrderService -> deleteAll() - ${error.toString()}`,
+        error,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
   }
 }

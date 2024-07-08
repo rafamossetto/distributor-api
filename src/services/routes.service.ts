@@ -17,7 +17,7 @@ export class RoutesService {
 
   private readonly GET_ALL_SORT_PARAM = 'client';
 
-  getAll({
+  async getAll({
     startDate,
     endDate,
   }: {
@@ -29,15 +29,15 @@ export class RoutesService {
     const filterParams: FilterQuery<Route> = {};
 
     try {
-      const startDateInstance = new Date(startDate);
-      const endDateInstance = new Date(endDate);
+      const startDateInstance = startDate ? new Date(startDate) : undefined;
+      const endDateInstance = endDate ? new Date(endDate) : undefined;
 
-      startDate && (datesFilter.$gte = startDateInstance);
-      endDate && (datesFilter.$lte = endDateInstance);
+      if (startDateInstance) datesFilter.$gte = startDateInstance;
+      if (endDateInstance) datesFilter.$lte = endDateInstance;
 
-      Object.keys(datesFilter).length && (filterParams.date = datesFilter);
+      if (Object.keys(datesFilter).length) filterParams.date = datesFilter;
 
-      return this.routesModel
+      return await this.routesModel
         .find(filterParams)
         .sort(this.GET_ALL_SORT_PARAM)
         .exec();
@@ -51,10 +51,10 @@ export class RoutesService {
     }
   }
 
-  create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {
+  async create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> create()';
     try {
-      return this.routesModel.create({
+      return await this.routesModel.create({
         ...createRouteDto,
         open: true,
       });
@@ -68,25 +68,20 @@ export class RoutesService {
     }
   }
 
-  updateRouteClients(
+  async updateRouteClients(
     updateRouteDto: UpdateClientsRouteDto,
-  ): Promise<HydratedDocument<Route>> {
+  ): Promise<HydratedDocument<Route> | null> {
     const source = 'RoutesService -> updateRouteClients()';
     try {
       const { clients, id } = updateRouteDto;
 
-      return this.routesModel.findByIdAndUpdate(
+      return await this.routesModel.findByIdAndUpdate(
         id,
         {
-          $set: {
-            clients: clients,
-          },
+          $set: { clients },
         },
-        {
-          multi: true,
-          new: true,
-        },
-      );
+        { multi: true, new: true },
+      ).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -97,26 +92,24 @@ export class RoutesService {
     }
   }
 
-  updateStatusClients(
+  async updateStatusClients(
     updateRouteDto: UpdateStatusClientsDto,
-  ): Promise<HydratedDocument<Route>> {
+  ): Promise<HydratedDocument<Route> | null> {
     const source = 'RoutesService -> updateStatusClients()';
     try {
       const { id, clientId, status } = updateRouteDto;
 
-      return this.routesModel.findByIdAndUpdate(
+      return await this.routesModel.findByIdAndUpdate(
         id,
         {
-          $set: {
-            'clients.$[elem].status': status,
-          },
+          $set: { 'clients.$[elem].status': status },
         },
         {
           arrayFilters: [{ 'elem._id': clientId }],
           multi: true,
           new: true,
         },
-      );
+      ).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -127,12 +120,15 @@ export class RoutesService {
     }
   }
 
-  updateRouteStatus(id: string, updateRouteStatusDto: UpdateRouteStatusDto) {
+  async updateRouteStatus(
+    id: string,
+    updateRouteStatusDto: UpdateRouteStatusDto,
+  ): Promise<HydratedDocument<Route> | null> {
     const source = 'RoutesService -> updateRouteStatus()';
     try {
-      return this.routesModel.findByIdAndUpdate(id, updateRouteStatusDto, {
+      return await this.routesModel.findByIdAndUpdate(id, updateRouteStatusDto, {
         new: true,
-      });
+      }).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -149,7 +145,7 @@ export class RoutesService {
     const source = 'RoutesService -> delete()';
 
     try {
-      return this.routesModel.deleteOne({ _id: id });
+      return await this.routesModel.deleteOne({ _id: id }).exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -164,15 +160,15 @@ export class RoutesService {
   async deleteClientOfRoute(
     routeId: string,
     clientId: string,
-  ): Promise<Promise<HydratedDocument<Route>>> {
-    const source = 'RoutesService -> delete()';
+  ): Promise<HydratedDocument<Route> | null> {
+    const source = 'RoutesService -> deleteClientOfRoute()';
 
     try {
-      return this.routesModel.findOneAndUpdate(
+      return await this.routesModel.findOneAndUpdate(
         { _id: routeId },
         { $pull: { clients: { _id: clientId } } },
         { new: true },
-      );
+      ).exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -184,10 +180,10 @@ export class RoutesService {
     }
   }
 
-  deleteAll() {
+  async deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const source = 'RoutesService -> deleteAll()';
     try {
-      return this.routesModel.deleteMany({});
+      return await this.routesModel.deleteMany({}).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
