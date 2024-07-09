@@ -31,29 +31,17 @@ export class RoutesController {
   @Get()
   @ApiResponse({
     status: 200,
-    description: 'List Route By startDate & endDate',
+    description: 'List all routes or filter by date',
     type: [Route],
   })
-  async getAllRoutes(
-    @Query() params?: { startDate?: string; endDate?: string },
-  ): Promise<Route[]> {
-    const source = 'RoutesController -> getAllRoutes()';
-
-    this.logger.log({
-      message: '[REQ] GET /routes - getAllRoutes()',
-      params,
-      source,
-    });
-
-    const response = await this.routesService.getAll(params);
-
-    this.logger.log({
-      message: '[RES] GET /routes - getAllRoutes()',
-      response,
-      source,
-    });
-
-    return response;
+  async getAllRoutes(@Query('date') date?: string): Promise<Route[]> {
+    if (date) {
+      // Filtrar por fecha si se proporciona el parámetro 'date'
+      return this.routesService.getRoutesByDate(date);
+    } else {
+      // Obtener todas las rutas si no se proporciona ningún parámetro
+      return this.routesService.getAllRoutes();
+    }
   }
 
   @Post()
@@ -62,23 +50,23 @@ export class RoutesController {
     @Body() routeDto: RouteDto,
   ): Promise<HydratedDocument<Route>> {
     const source = 'RoutesController -> createRoute()';
-
+  
     this.logger.log({
       message: '[REQ] POST /routes - createRoute()',
       source,
       body: routeDto,
     });
-
+  
     const response = await this.routesService.create(routeDto);
-
+  
     this.logger.log({
       message: '[RES] POST /routes - createRoute()',
       response,
       source,
     });
-
+  
     return response;
-  }
+  }  
 
   @Put('status')
   @ApiResponse({ status: 201, description: 'Update Route Status', type: Route })

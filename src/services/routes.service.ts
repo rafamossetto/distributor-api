@@ -17,30 +17,10 @@ export class RoutesService {
 
   private readonly GET_ALL_SORT_PARAM = 'client';
 
-  async getAll({
-    startDate,
-    endDate,
-  }: {
-    startDate?: string;
-    endDate?: string;
-  }): Promise<HydratedDocument<Route>[]> {
-    const source = 'RoutesService -> getAll()';
-    const datesFilter: { $gte?: Date; $lte?: Date } = {};
-    const filterParams: FilterQuery<Route> = {};
-
+  async getAllRoutes(): Promise<Route[]> {
+    const source = 'RoutesService -> getAllRoutes()';
     try {
-      const startDateInstance = startDate ? new Date(startDate) : undefined;
-      const endDateInstance = endDate ? new Date(endDate) : undefined;
-
-      if (startDateInstance) datesFilter.$gte = startDateInstance;
-      if (endDateInstance) datesFilter.$lte = endDateInstance;
-
-      if (Object.keys(datesFilter).length) filterParams.date = datesFilter;
-
-      return await this.routesModel
-        .find(filterParams)
-        .sort(this.GET_ALL_SORT_PARAM)
-        .exec();
+      return await this.routesModel.find().exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -51,6 +31,29 @@ export class RoutesService {
     }
   }
 
+  async getRoutesByDate(date: string): Promise<Route[]> {
+    const source = 'RoutesService -> getRoutesByDate()';
+    try {
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+
+      return await this.routesModel.find({
+        date: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+      }).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+  
   async create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> create()';
     try {
@@ -66,7 +69,7 @@ export class RoutesService {
       });
       throw error;
     }
-  }
+  }  
 
   async updateRouteClients(
     updateRouteDto: UpdateClientsRouteDto,
