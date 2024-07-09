@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../user/user.service';
+import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
-import { UserDocument } from 'src/user/user.schema';
+import { UserDocument } from 'src/schemas';
 
 @Injectable()
 export class AuthService {
@@ -11,13 +11,16 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
+  async validateUser(username: string, pass: string): Promise<UserDocument> {
     const user = await this.userService.findOne(username);
-    if (user && (await bcrypt.compare(pass, user.password))) {
-      const { password, ...result } = user.toObject();
-      return result;
-    }
-    return null;
+    if (!user) throw new Error('Invalid user');
+
+    const { password, ...userObject } = user.toObject();
+
+    const matchPassword = await bcrypt.compare(pass, password);
+    if (!matchPassword) throw new Error('Invalid password');
+
+    return userObject;
   }
 
   async login(user: UserDocument) {
@@ -33,7 +36,20 @@ export class AuthService {
       username: user.username,
       password: hashedPassword,
     });
-    const { password, ...result } = newUser.toObject();
-    return result;
+    return newUser.toObject();
+  }
+
+  async recover({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) {
+    const user = await this.userService.findOne(username);
+    if (!user) throw new Error('Invalid user');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return this.userService.changePassword(username, hashedPassword);
   }
 }

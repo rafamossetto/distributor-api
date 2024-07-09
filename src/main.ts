@@ -8,7 +8,7 @@ import { join } from 'path';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { getModelToken } from '@nestjs/mongoose';
-import { User } from './user/user.schema';
+import { User } from './schemas/user.schema';
 
 async function bootstrap() {
   const PORT = process.env.PORT || 3000;

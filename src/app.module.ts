@@ -4,12 +4,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ControllersModule } from './controllers/controllers.module';
-import { UserModule } from './user/user.module';
-import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './auth/jwt.strategy';
-import { LocalStrategy } from './auth/local.strategy';
-import { AuthService } from './services/auth.service';
 
 @Module({
   imports: [
@@ -23,10 +18,6 @@ import { AuthService } from './services/auth.service';
             : process.env.DB_NAME_TEST,
       },
     ),
-    ControllersModule,
-    UserModule,
-    UserModule,
-    PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -35,8 +26,9 @@ import { AuthService } from './services/auth.service';
         signOptions: { expiresIn: '60m' },
       }),
     }),
+    ControllersModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AuthService, LocalStrategy, JwtStrategy],
+  providers: [AppService],
 })
 export class AppModule {}

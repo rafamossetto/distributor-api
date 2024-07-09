@@ -19,6 +19,12 @@ export class AuthController {
     return this.authService.register({ username, password });
   }
 
+  @Post('recover')
+  async recover(@Request() req) {
+    const { username, password } = req.body;
+    return this.authService.recover({ username, password });
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('profile')
   getProfile(@Request() req) {

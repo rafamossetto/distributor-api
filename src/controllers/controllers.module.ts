@@ -7,13 +7,14 @@ import {
   PricesListController,
 } from '../controllers';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Product, ProductSchema } from '../schemas/product.schema';
 import {
+  AuthService,
   ClientsService,
   OrderService,
   PricesListService,
   ProductsService,
   RoutesService,
+  UserService,
 } from 'src/services';
 import {
   Client,
@@ -24,10 +25,20 @@ import {
   PricesListSchema,
   Order,
   OrderSchema,
+  Product,
+  ProductSchema,
+  User,
+  UserSchema,
 } from 'src/schemas';
+import { AuthController } from './auth.controller';
+import { JwtService } from '@nestjs/jwt';
+import { LocalStrategy } from 'src/auth/local.strategy';
+import { JwtStrategy } from 'src/auth/jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     MongooseModule.forFeature([
       {
         name: Product.name,
@@ -49,6 +60,10 @@ import {
         name: Order.name,
         schema: OrderSchema,
       },
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
     ]),
   ],
   providers: [
@@ -57,6 +72,11 @@ import {
     RoutesService,
     PricesListService,
     OrderService,
+    UserService,
+    JwtService,
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
   ],
   controllers: [
     ProductsController,
@@ -64,6 +84,7 @@ import {
     ClientsController,
     OrderController,
     PricesListController,
+    AuthController,
   ],
 })
 export class ControllersModule {}
