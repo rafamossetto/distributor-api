@@ -5,6 +5,7 @@ import {
   ClientsController,
   OrderController,
   PricesListController,
+  UserController,
 } from '../controllers';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
@@ -85,6 +86,7 @@ import { PassportModule } from '@nestjs/passport';
     OrderController,
     PricesListController,
     AuthController,
+    UserController,
   ],
 })
 export class ControllersModule {}
