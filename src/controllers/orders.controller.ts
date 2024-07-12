@@ -6,6 +6,7 @@ import {
   Logger,
   Param,
   Post,
+  Put,
   Render,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -159,6 +160,33 @@ export class OrderController {
     this.logger.log({
       message: '[RES] DELETE /orders - deleteAllOrders()',
       response,
+      source,
+    });
+
+    return response;
+  }
+
+  @Put(':id')
+  @ApiResponse({ status: 200, description: 'Update Order By Id' })
+  async updateOrder(
+    @Param('id') id: string,
+    @Body() updateOrderDto: OrderDto,
+  ): Promise<Order> {
+    const source = 'OrderController -> updateOrder()';
+
+    this.logger.log({
+      message: `[REQ] PUT /orders/${id} - updateOrder()`,
+      source,
+      id,
+      updateOrderDto,
+    });
+
+    const response = await this.orderService.updateById(id, updateOrderDto);
+
+    this.logger.log({
+      message: `[RES] PUT /orders/${id} - updateOrder()`,
+      response,
+      id,
       source,
     });
 

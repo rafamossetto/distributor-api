@@ -114,4 +114,34 @@ export class OrderService {
       throw new HttpException(error.toString(), 500);
     }
   }
+  async updateById(id: string, updateOrderDto: OrderDto): Promise<HydratedDocument<Order>> {
+    const source = 'OrderService -> updateById()';
+
+    try {
+      const updatedOrder = await this.orderModel.findByIdAndUpdate(
+        id,
+        { ...updateOrderDto },
+        { new: true },
+      ).exec();
+
+      if (!updatedOrder) {
+        throw new HttpException('Order not found', 404);
+      }
+
+      this.logger.log({
+        message: `${source} - Order updated successfully with id ${id}`,
+        updatedOrder,
+        source,
+      });
+
+      return updatedOrder;
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
 }
