@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Logger,
   Param,
@@ -118,5 +119,49 @@ export class OrderController {
       clientNumber,
       date: date.toLocaleDateString('en-GB'),
     };
+  }
+
+  @Delete(':id')
+  @ApiResponse({ status: 200, description: 'Delete Order By Id' })
+  async deleteOrder(@Param('id') id: string): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    const source = 'OrderController -> deleteOrder()';
+
+    this.logger.log({
+      message: `[REQ] DELETE /orders/${id} - deleteOrder()`,
+      source,
+      id,
+    });
+
+    const response = await this.orderService.deleteById(id);
+
+    this.logger.log({
+      message: `[RES] DELETE /orders/${id} - deleteOrder()`,
+      response,
+      id,
+      source,
+    });
+
+    return response;
+  }
+
+  @Delete()
+  @ApiResponse({ status: 200, description: 'Delete All Orders' })
+  async deleteAllOrders(): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    const source = 'OrderController -> deleteAllOrders()';
+
+    this.logger.log({
+      message: '[REQ] DELETE /orders - deleteAllOrders()',
+      source,
+    });
+
+    const response = await this.orderService.deleteAll();
+
+    this.logger.log({
+      message: '[RES] DELETE /orders - deleteAllOrders()',
+      response,
+      source,
+    });
+
+    return response;
   }
 }

@@ -81,6 +81,28 @@ export class OrderService {
     }
   }
 
+  async deleteById(id: string): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    const source = 'OrderService -> deleteById()';
+  
+    try {
+      const result = await this.orderModel.deleteOne({ _id: id }).exec();
+      this.logger.log({
+        message: `${source} - Order deleted successfully with id ${id}`,
+        result,
+        source,
+      });
+      return result;
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
+  
+
   async deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
     try {
       return await this.orderModel.deleteMany({}).exec();
