@@ -27,16 +27,10 @@ export class OrderService {
     }
   }
 
-  async getByDate(date: string): Promise<HydratedDocument<Order>[]> {
-    const source = 'OrderService -> getByDate()';
-    const dateInstance = new Date(date);
+  async getBySelectedList(selectedList: string): Promise<HydratedDocument<Order>[]> {
+    const source = 'OrderService -> getBySelectedList()';
     const filterParams: FilterQuery<Order> = {
-      date: {
-        $gte: new Date(date),
-        $lte: new Date(
-          `${dateInstance.toISOString().split('T')[0]}T23:59:59.999Z`,
-        ),
-      },
+      selectedList: selectedList,
     };
 
     try {

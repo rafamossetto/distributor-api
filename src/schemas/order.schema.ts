@@ -31,6 +31,9 @@ export class Order {
 
   @Prop({ required: true })
   clientNumber: number;
+
+  @Prop({ required: true })
+  selectedList: number; 
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

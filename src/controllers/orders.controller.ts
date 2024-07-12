@@ -40,23 +40,23 @@ export class OrderController {
     return response;
   }
 
-  @Get(':date')
+  @Get('selectedList/:selectedList')
   @ApiResponse({
     status: 200,
-    description: 'Get Buy Orders by Date - ex: 2024-12-20',
+    description: 'Get Buy Orders by Selected List',
   })
-  async getOrderByDate(@Param('date') date: string): Promise<Order[]> {
-    const source = 'OrderController -> getOrderByDate()';
+  async getOrderBySelectedList(@Param('selectedList') selectedList: string): Promise<Order[]> {
+    const source = 'OrderController -> getOrderBySelectedList()';
 
     this.logger.log({
-      message: `[REQ] GET /orders/${date} - getOrderByDate()`,
+      message: `[REQ] GET /orders/selectedList/${selectedList} - getOrderBySelectedList()`,
       source,
     });
 
-    const response = await this.orderService.getByDate(date);
+    const response = await this.orderService.getBySelectedList(selectedList);
 
     this.logger.log({
-      message: `[RES] GET /orders/${date} - getOrderByDate()`,
+      message: `[RES] GET /orders/selectedList/${selectedList} - getOrderBySelectedList()`,
       response,
       source,
     });

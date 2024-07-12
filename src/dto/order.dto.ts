@@ -31,4 +31,8 @@ export class OrderDto {
   @ValidateNested({ each: true })
   @Type(() => ProductOrderDto)
   products: ProductOrderDto[];
+
+  @IsNumber()
+  @IsNotEmpty()
+  selectedList: number;
 }
