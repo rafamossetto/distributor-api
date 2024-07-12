@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas';
@@ -8,6 +8,18 @@ export class UserService {
   private readonly logger = new Logger(UserService.name);
 
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  async getAllUsers(): Promise<Partial<User>[]> {
+    return this.userModel.find().select('-password').exec();
+  }
+
+  async getUserById(id: string): Promise<Partial<User>> {
+    const user = await this.userModel.findById(id).select('-password').exec();
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+    return user;
+  }
 
   async findOne(username: string): Promise<UserDocument> {
     const source = 'UserService -> findOne()';
