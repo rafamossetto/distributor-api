@@ -31,13 +31,28 @@ export class ProductsService {
     }
   }
 
+  getAllByUser(userId: string): Promise<HydratedDocument<Product>[]> {
+    const source = 'ProductsService -> getAllByUser()';
+
+    try {
+      return this.productModel.find({ userId }).sort(this.GET_ALL_SORT_PARAM).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
   async create(
-    createProductDto: ProductDto,
+    createProductDto: ProductDto & { userId: string },
   ): Promise<HydratedDocument<Product>> {
     const source = 'ProductsService -> create()';
 
     try {
-      const { price: firstPrice, name } = createProductDto;
+      const { price: firstPrice, name, userId } = createProductDto;
 
       const allPercentsList = (await this.pricesListModel.find().exec()).map(
         ({ percent }) => percent,
@@ -54,6 +69,7 @@ export class ProductsService {
         name: name.toUpperCase(),
         code: codeIncreased,
         prices,
+        userId,
       });
     } catch (error) {
       this.logger.error({

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, HydratedDocument, Model } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 import {
   RouteDto,
   UpdateClientsRouteDto,
@@ -17,10 +17,10 @@ export class RoutesService {
 
   private readonly GET_ALL_SORT_PARAM = 'client';
 
-  async getAllRoutes(): Promise<Route[]> {
+  async getAllRoutes(userId: string): Promise<Route[]> {
     const source = 'RoutesService -> getAllRoutes()';
     try {
-      return await this.routesModel.find().exec();
+      return await this.routesModel.find({ userId }).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -31,19 +31,19 @@ export class RoutesService {
     }
   }
 
-  async getRoutesByDate(date: string): Promise<Route[]> {
+  async getRoutesByDate(date: string, userId: string): Promise<Route[]> {
     const source = 'RoutesService -> getRoutesByDate()';
     try {
-      const startDate = new Date(date);
-      const endDate = new Date(date);
-      endDate.setDate(endDate.getDate() + 1);
-
-      return await this.routesModel.find({
-        date: {
-          $gte: startDate,
-          $lt: endDate,
-        },
+      const searchDate = new Date(date);
+      searchDate.setUTCHours(0, 0, 0, 0);
+  
+  
+      const routes = await this.routesModel.find({
+        date: searchDate,
+        userId,
       }).exec();
+  
+      return routes;
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -54,14 +54,29 @@ export class RoutesService {
     }
   }
   
-  async create(createRouteDto: RouteDto): Promise<HydratedDocument<Route>> {
+  async create(createRouteDto: RouteDto, userId: string): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> create()';
     try {
-      return await this.routesModel.create({
+      const clientsWithUserId = createRouteDto.clients.map(client => ({
+        ...client,
+        userId
+      }));
+  
+      const routeDate = new Date(createRouteDto.date);
+      routeDate.setUTCHours(0, 0, 0, 0);
+  
+      const route = await this.routesModel.create({
         ...createRouteDto,
+        date: routeDate,
+        clients: clientsWithUserId,
         open: true,
+        userId,
       });
+  
+  
+      return route;
     } catch (error) {
+  
       this.logger.error({
         message: `${source} - ${error.toString()}`,
         error,
@@ -69,7 +84,7 @@ export class RoutesService {
       });
       throw error;
     }
-  }  
+  }
 
   async updateRouteClients(
     updateRouteDto: UpdateClientsRouteDto,

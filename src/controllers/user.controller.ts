@@ -123,4 +123,41 @@ export class UserController {
 
     return response;
   }
+
+  @Put(':id/set-admin')
+@ApiOperation({ summary: 'Establecer usuario como administrador' })
+@ApiResponse({ status: 200, description: 'Usuario actualizado a administrador con éxito' })
+@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+@ApiResponse({ status: 500, description: 'Error interno del servidor' })
+async setUserAsAdmin(@Param('id') id: string) {
+  const source = 'UserController -> setUserAsAdmin()';
+
+  this.logger.log({
+    message: `[REQ] PUT /user/${id}/set-admin - setUserAsAdmin()`,
+    source,
+    id,
+  });
+
+  try {
+    const response = await this.userService.setUserAsAdmin(id);
+
+    this.logger.log({
+      message: `[RES] PUT /user/${id}/set-admin - setUserAsAdmin()`,
+      response,
+      source,
+    });
+
+    return response;
+  } catch (error) {
+    this.logger.error({
+      message: `[ERR] PUT /user/${id}/set-admin - setUserAsAdmin()`,
+      error,
+      source,
+    });
+    if (error instanceof NotFoundException) {
+      throw error;
+    }
+    throw new InternalServerErrorException('Error al establecer usuario como administrador');
+  }
+}
 }

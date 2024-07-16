@@ -4,19 +4,25 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  HttpException,
+  HttpStatus,
   Logger,
   Param,
   Post,
   Put,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 import { ClientDto, UpdateClientDto } from 'src/dto/client.dto';
 import { Client } from 'src/schemas';
 import { ClientsService } from 'src/services';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('clients')
 @ApiTags('clients')
+@UseGuards(AuthGuard('jwt'))
 export class ClientsController {
   private readonly logger = new Logger(ClientsController.name);
 
@@ -28,7 +34,7 @@ export class ClientsController {
     description: 'List All Clients - Sorted By Name A-Z',
     type: [Client],
   })
-  async getAllClients(): Promise<Client[]> {
+  async getAllClients(@Req() req): Promise<Client[]> {
     const source = 'ClientsController -> getAllClients()';
 
     this.logger.log({
@@ -36,7 +42,7 @@ export class ClientsController {
       source,
     });
 
-    const response = await this.clientsService.getAll();
+    const response = await this.clientsService.getAllByUser(req.user.id);
 
     this.logger.log({
       message: '[RES] GET /clients - getAllClients()',
@@ -48,28 +54,52 @@ export class ClientsController {
   }
 
   @Post()
-  @ApiResponse({ status: 201, description: 'Create Client', type: Client })
-  async createClient(
-    @Body() clientDto: ClientDto,
-  ): Promise<HydratedDocument<Client>> {
-    const source = 'ClientsController -> createClient()';
+@ApiResponse({ status: 201, description: 'Create Client', type: Client })
+async createClient(
+  @Body() clientDto: ClientDto,
+  @Req() req,
+): Promise<HydratedDocument<Client>> {
+  const source = 'ClientsController -> createClient()';
 
-    this.logger.log({
-      message: '[REQ] POST /clients - createClient()',
-      source,
-      body: clientDto,
-    });
+  this.logger.log({
+    message: '[REQ] POST /clients - createClient()',
+    source,
+    body: clientDto,
+  });
 
-    const response = await this.clientsService.create(clientDto);
-
-    this.logger.log({
-      message: '[RES] POST /clients - createClient()',
-      response,
-      source,
-    });
-
-    return response;
+  let userId;
+  if (req.user && req.user.id) {
+    userId = req.user.id;
+  } else {
+    throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
   }
+
+  this.logger.log({
+    message: 'Extracting userId from JWT',
+    userId,
+    source,
+  });
+
+  // Agregar userId desde req.user.id
+  const clientData = { ...clientDto, userId };
+
+  this.logger.log({
+    message: 'Creating client with data',
+    clientData,
+    source,
+  });
+
+  const response = await this.clientsService.create(clientData);
+
+  this.logger.log({
+    message: '[RES] POST /clients - createClient()',
+    response,
+    source,
+  });
+
+  return response;
+}
+  
 
   @Put()
   @ApiResponse({ status: 201, description: 'Update Client', type: [Client] })
@@ -85,6 +115,13 @@ export class ClientsController {
     });
 
     const { id } = body;
+
+    this.logger.log({
+      message: 'Updating client with id',
+      id,
+      updateParams: body,
+      source,
+    });
 
     const response = await this.clientsService.update(id, body);
 

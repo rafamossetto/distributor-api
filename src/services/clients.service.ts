@@ -11,11 +11,17 @@ export class ClientsService {
 
   constructor(@InjectModel(Client.name) private clientModel: Model<Client>) {}
 
-  getAll(): Promise<HydratedDocument<Client>[]> {
-    const source = 'ClientsService -> getAll()';
+  getAllByUser(userId: string): Promise<HydratedDocument<Client>[]> {
+    const source = 'ClientsService -> getAllByUser()';
 
     try {
-      return this.clientModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+      this.logger.log({
+        message: 'Fetching all clients for user',
+        userId,
+        source,
+      });
+
+      return this.clientModel.find({ userId }).sort(this.GET_ALL_SORT_PARAM).exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -27,11 +33,21 @@ export class ClientsService {
     }
   }
 
-  async create(createClientDto: ClientDto): Promise<HydratedDocument<Client>> {
+  async create(createClientDto: ClientDto & { userId: string }): Promise<HydratedDocument<Client>> {
     const source = 'ClientsService -> create()';
 
     try {
       const clientsCount = await this.clientModel.countDocuments();
+
+      this.logger.log({
+        message: 'Creating client',
+        clientData: {
+          ...createClientDto,
+          clientNumber: clientsCount + 1,
+        },
+        source,
+      });
+
       return this.clientModel.create({
         ...createClientDto,
         clientNumber: clientsCount + 1,
@@ -54,6 +70,13 @@ export class ClientsService {
     const source = 'ClientsService -> update()';
 
     try {
+      this.logger.log({
+        message: 'Updating client with id',
+        id,
+        updateParams,
+        source,
+      });
+
       return this.clientModel
         .findByIdAndUpdate(id, updateParams, { new: true })
         .exec();
@@ -74,6 +97,12 @@ export class ClientsService {
     const source = 'ClientsService -> delete()';
 
     try {
+      this.logger.log({
+        message: 'Deleting client with id',
+        id,
+        source,
+      });
+
       return this.clientModel.deleteOne({ _id: id }).exec();
     } catch (error) {
       this.logger.error({
@@ -90,6 +119,11 @@ export class ClientsService {
     const source = 'ClientsService -> deleteAll()';
 
     try {
+      this.logger.log({
+        message: 'Deleting all clients',
+        source,
+      });
+
       return this.clientModel.deleteMany({}).exec();
     } catch (error) {
       this.logger.error({

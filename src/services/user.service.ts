@@ -165,4 +165,38 @@ export class UserService {
       throw new HttpException(error.message, 500);
     }
   }
+
+  async setUserAsAdmin(userId: string): Promise<UserDocument> {
+    const source = 'UserService -> setUserAsAdmin()';
+  
+    this.logger.log({
+      message: `[REQ] setUserAsAdmin ${userId}`,
+      source,
+    });
+  
+    try {
+      const updatedUser = await this.userModel
+        .findByIdAndUpdate(userId, { role: 'admin' }, { new: true })
+        .exec();
+  
+      if (!updatedUser) {
+        throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+      }
+  
+      this.logger.log({
+        message: `[RES] setUserAsAdmin ${userId}`,
+        response: updatedUser,
+        source,
+      });
+  
+      return updatedUser;
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.message, error instanceof NotFoundException ? 404 : 500);
+    }
+  }
 }

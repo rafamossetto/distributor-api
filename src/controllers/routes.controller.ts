@@ -9,6 +9,8 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
@@ -20,9 +22,11 @@ import {
 } from 'src/dto';
 import { Route } from 'src/schemas';
 import { RoutesService } from 'src/services';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('routes')
 @ApiTags('routes')
+@UseGuards(JwtAuthGuard)
 export class RoutesController {
   private readonly logger = new Logger(RoutesController.name);
 
@@ -34,39 +38,41 @@ export class RoutesController {
     description: 'List all routes or filter by date',
     type: [Route],
   })
-  async getAllRoutes(@Query('date') date?: string): Promise<Route[]> {
+  async getAllRoutes(@Req() req, @Query('date') date?: string): Promise<Route[]> {
+    const userId = req.user.id;
     if (date) {
-      // Filtrar por fecha si se proporciona el parámetro 'date'
-      return this.routesService.getRoutesByDate(date);
+      console.log('Received date query:', date);
+      return this.routesService.getRoutesByDate(date, userId);
     } else {
-      // Obtener todas las rutas si no se proporciona ningún parámetro
-      return this.routesService.getAllRoutes();
+      return this.routesService.getAllRoutes(userId);
     }
   }
 
   @Post()
-  @ApiResponse({ status: 201, description: 'Create Route', type: Route })
-  async createRoute(
-    @Body() routeDto: RouteDto,
-  ): Promise<HydratedDocument<Route>> {
-    const source = 'RoutesController -> createRoute()';
-  
-    this.logger.log({
-      message: '[REQ] POST /routes - createRoute()',
-      source,
-      body: routeDto,
-    });
-  
-    const response = await this.routesService.create(routeDto);
-  
-    this.logger.log({
-      message: '[RES] POST /routes - createRoute()',
-      response,
-      source,
-    });
-  
-    return response;
-  }  
+@ApiResponse({ status: 201, description: 'Create Route', type: Route })
+async createRoute(
+  @Body() routeDto: RouteDto,
+  @Req() req,
+): Promise<HydratedDocument<Route>> {
+  const source = 'RoutesController -> createRoute()';
+
+  this.logger.log({
+    message: '[REQ] POST /routes - createRoute()',
+    source,
+    body: routeDto,
+  });
+
+  const userId = req.user.id; 
+  const response = await this.routesService.create(routeDto, userId);
+
+  this.logger.log({
+    message: '[RES] POST /routes - createRoute()',
+    response,
+    source,
+  });
+
+  return response;
+}
 
   @Put('status')
   @ApiResponse({ status: 201, description: 'Update Route Status', type: Route })

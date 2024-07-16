@@ -37,6 +37,9 @@ export class Product {
     },
   })
   prices: number[];
+
+  @Prop({ required: true, type: String })
+  userId: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

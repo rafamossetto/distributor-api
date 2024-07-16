@@ -12,11 +12,39 @@ export class OrderService {
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  async getAll(): Promise<HydratedDocument<Order>[]> {
+  async getAll(userId: string): Promise<HydratedDocument<Order>[]> {
     const source = 'OrderService -> getAll()';
 
     try {
-      return await this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+      return await this.orderModel.find({ userId }).sort(this.GET_ALL_SORT_PARAM).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
+
+  async create(createOrderDto: OrderDto, userId: string): Promise<HydratedDocument<Order>> {
+    const source = 'OrderService -> create()';
+  
+    const orderCount = await this.orderModel.countDocuments();
+  
+    try {
+      const productsWithUserId = createOrderDto.products.map(product => ({
+        ...product,
+        userId
+      }));
+  
+      return await this.orderModel.create({
+        ...createOrderDto,
+        products: productsWithUserId,
+        documentNumber: orderCount + 1,
+        date: new Date(),
+        userId,
+      });
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -50,27 +78,6 @@ export class OrderService {
 
     try {
       return await this.orderModel.findById(id).exec();
-    } catch (error) {
-      this.logger.error({
-        message: `${source} - ${error.toString()}`,
-        error,
-        source,
-      });
-      throw new HttpException(error.toString(), 500);
-    }
-  }
-
-  async create(createOrderDto: OrderDto): Promise<HydratedDocument<Order>> {
-    const source = 'OrderService -> create()';
-
-    const orderCount = await this.orderModel.countDocuments();
-
-    try {
-      return await this.orderModel.create({
-        ...createOrderDto,
-        documentNumber: orderCount + 1,
-        date: new Date(),
-      });
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,

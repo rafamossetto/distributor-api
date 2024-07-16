@@ -13,6 +13,9 @@ export class User {
 
   @Prop()
   selectedDate?: string;
+
+  @Prop({ default: 'user'})
+  role: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

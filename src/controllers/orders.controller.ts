@@ -8,14 +8,18 @@ import {
   Post,
   Put,
   Render,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderDto } from 'src/dto';
 import { OrderService } from 'src/services/orders.service';
 import { Order, Product } from 'src/schemas';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('orders')
 @ApiTags('orders')
+@UseGuards(JwtAuthGuard)
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
 
@@ -23,19 +27,46 @@ export class OrderController {
 
   @Get()
   @ApiResponse({ status: 200, description: 'Get Buy Orders' })
-  async getOrders(): Promise<Order[]> {
+  async getOrders(@Req() req): Promise<Order[]> {
     const source = 'OrderController -> getOrders()';
-
+    const userId = req.user.id;
+    console.log(userId);
+    
     this.logger.log({
       message: '[REQ] GET /orders - getOrders()',
       source,
+      userId,
     });
 
-    const response = await this.orderService.getAll();
+    const response = await this.orderService.getAll(userId);
 
     this.logger.log({
       message: '[RES] GET /orders - getOrders()',
       response,
+      source,
+    });
+
+    return response;
+  }
+
+  @Post()
+  @ApiResponse({ status: 201, description: 'Create Buy Order' })
+  async createOrder(@Body() body: OrderDto, @Req() req): Promise<Order> {
+    const source = 'OrderController -> createOrder()';
+    const userId = req.user.id;
+
+    this.logger.log({
+      message: '[REQ] POST /orders - createOrder()',
+      source,
+      body,
+      userId,
+    });
+    const response = await this.orderService.create(body, userId);
+
+    this.logger.log({
+      message: '[RES] POST /orders - createOrder()',
+      response,
+      body,
       source,
     });
 
@@ -60,28 +91,6 @@ export class OrderController {
     this.logger.log({
       message: `[RES] GET /orders/selectedList/${selectedList} - getOrderBySelectedList()`,
       response,
-      source,
-    });
-
-    return response;
-  }
-
-  @Post()
-  @ApiResponse({ status: 201, description: 'Create Buy Order' })
-  async createOrder(@Body() body: OrderDto): Promise<Order> {
-    const source = 'OrderController -> createOrder()';
-
-    this.logger.log({
-      message: '[REQ] POST /orders - createOrder()',
-      source,
-      body,
-    });
-    const response = await this.orderService.create(body);
-
-    this.logger.log({
-      message: '[RES] POST /orders - createOrder()',
-      response,
-      body,
       source,
     });
 

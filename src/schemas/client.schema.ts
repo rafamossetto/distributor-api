@@ -22,6 +22,9 @@ export class Client {
 
   @Prop({ required: true })
   clientNumber: number;
+
+  @Prop({ required: true })
+  userId: string;
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

@@ -7,7 +7,10 @@ import {
   Logger,
   Param,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductDto } from 'src/dto';
 import { Product } from 'src/schemas';
@@ -15,6 +18,7 @@ import { ProductsService } from 'src/services';
 
 @Controller('products')
 @ApiTags('products')
+@UseGuards(AuthGuard('jwt'))
 export class ProductsController {
   private readonly logger = new Logger(ProductsController.name);
 
@@ -22,7 +26,7 @@ export class ProductsController {
 
   @Get()
   @ApiResponse({ status: 200, description: 'List Products', type: [Product] })
-  async getAllProducts(): Promise<Product[]> {
+  async getAllProducts(@Req() req): Promise<Product[]> {
     const source = 'ProductsController -> getAllProducts()';
 
     this.logger.log({
@@ -30,7 +34,7 @@ export class ProductsController {
       source,
     });
 
-    const response = await this.productsService.getAll();
+    const response = await this.productsService.getAllByUser(req.user.id);
 
     this.logger.log({
       message: '[RES] GET /products - getAllProducts()',
@@ -43,7 +47,10 @@ export class ProductsController {
 
   @Post()
   @ApiResponse({ status: 201, description: 'Create Product', type: Product })
-  async createProduct(@Body() productDto: ProductDto): Promise<Product> {
+  async createProduct(
+    @Body() productDto: ProductDto,
+    @Req() req,
+  ): Promise<Product> {
     const source = 'ProductsController -> createProduct()';
 
     this.logger.log({
@@ -52,7 +59,10 @@ export class ProductsController {
       body: productDto,
     });
 
-    const response = await this.productsService.create(productDto);
+    const userId = req.user.id;
+    const productData = { ...productDto, userId };
+
+    const response = await this.productsService.create(productData);
 
     this.logger.log({
       message: '[RES] POST /products - createProduct()',
