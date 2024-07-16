@@ -7,6 +7,7 @@ import {
   Logger,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -70,6 +71,34 @@ export class ProductsController {
       source,
     });
 
+    return response;
+  }
+
+  @Put(':id')
+  @ApiResponse({ status: 200, description: 'Update Product', type: Product })
+  async updateProduct(
+    @Param('id') id: string,
+    @Body() updateProductDto: Partial<ProductDto>,
+    @Req() req,
+  ): Promise<Product> {
+    const source = 'ProductsController -> updateProduct()';
+  
+    this.logger.log({
+      message: `[REQ] PUT /products/${id} - updateProduct()`,
+      source,
+      body: updateProductDto,
+    });
+  
+    const userId = req.user.id;
+  
+    const response = await this.productsService.update(id, updateProductDto, userId);
+  
+    this.logger.log({
+      message: `[RES] PUT /products/${id} - updateProduct()`,
+      response,
+      source,
+    });
+  
     return response;
   }
 

@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ProductDto } from 'src/dto';
@@ -84,12 +84,38 @@ export class ProductsService {
   async update(
     id: string,
     updateParams: Partial<ProductDto>,
+    userId: string
   ): Promise<HydratedDocument<Product> | null> {
     const source = 'ProductsService -> update()';
-
+  
     try {
+      const product = await this.productModel.findById(id).exec();
+      if (!product) {
+        throw new HttpException('Product not found', 404);
+      }
+  
+      if (product.userId !== userId) {
+        throw new ForbiddenException('You are not authorized to update this product');
+      }
+  
+      if (updateParams.price !== undefined) {
+        const allPercentsList = (await this.pricesListModel.find().exec()).map(
+          ({ percent }) => percent,
+        );
+  
+        const increasedPrices = getPricesWithPercent(updateParams.price, allPercentsList);
+        updateParams['prices'] = [updateParams.price, ...increasedPrices];
+      }
+  
+      if (updateParams.name) {
+        updateParams.name = updateParams.name.toUpperCase();
+      }
+  
+      // Removing 'price' from updateParams as it's not in the schema
+      const { price, ...updateParamsWithoutPrice } = updateParams;
+  
       return this.productModel
-        .findByIdAndUpdate(id, updateParams, { new: true })
+        .findByIdAndUpdate(id, updateParamsWithoutPrice, { new: true })
         .exec();
     } catch (error) {
       this.logger.error({
@@ -98,7 +124,7 @@ export class ProductsService {
         errorString: error.toString(),
         source,
       });
-      throw new HttpException(error.message, 500);
+      throw new HttpException(error.message, error.status || 500);
     }
   }
 
