@@ -67,12 +67,9 @@ async createClient(
     body: clientDto,
   });
 
-  let userId;
-  if (req.user && req.user.id) {
-    userId = req.user.id;
-  } else {
-    throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
-  }
+  const userId = req.user?.id;
+
+  if (!userId) throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
 
   this.logger.log({
     message: 'Extracting userId from JWT',
