@@ -30,7 +30,6 @@ export class OrderController {
   async getOrders(@Req() req): Promise<Order[]> {
     const source = 'OrderController -> getOrders()';
     const userId = req.user.id;
-    console.log(userId);
     
     this.logger.log({
       message: '[REQ] GET /orders - getOrders()',

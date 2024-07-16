@@ -12,11 +12,38 @@ export class OrderService {
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  getAll(): Promise<HydratedDocument<Order>[]> {
+  getAll(userId: string): Promise<HydratedDocument<Order>[]> {
     const source = 'OrderService -> getAll()';
 
     try {
       return this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.toString(), 500);
+    }
+  }
+  async create(createOrderDto: OrderDto, userId: string): Promise<HydratedDocument<Order>> {
+    const source = 'OrderService -> create()';
+
+    const orderCount = await this.orderModel.countDocuments();
+
+    try {
+      const productsWithUserId = createOrderDto.products.map(product => ({
+        ...product,
+        userId
+      }));
+
+      return await this.orderModel.create({
+        ...createOrderDto,
+        products: productsWithUserId,
+        documentNumber: orderCount + 1,
+        date: new Date(),
+        userId,
+      });
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
