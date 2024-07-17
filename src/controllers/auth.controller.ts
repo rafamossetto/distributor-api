@@ -15,8 +15,8 @@ export class AuthController {
 
   @Post('register')
   async register(@Request() req) {
-    const { username, password } = req.body;
-    return this.authService.register({ username, password });
+    const { username, password, name } = req.body;
+    return this.authService.register({ username, password, name });
   }
 
   @Post('recover')

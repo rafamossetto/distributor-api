@@ -49,22 +49,22 @@ export class UserService {
 
   async create(user: Partial<User>): Promise<UserDocument> {
     const source = 'UserService -> create()';
-
+  
     this.logger.log({
       message: `[REQ] create user ${user.username}`,
       source,
     });
-
+  
     try {
       const newUser = await new this.userModel(user).save();
       delete newUser.password;
-
+  
       this.logger.log({
         message: `[RES] create user ${user.username}`,
         response: newUser,
         source,
       });
-
+  
       return newUser;
     } catch (error) {
       this.logger.error({
@@ -185,6 +185,40 @@ export class UserService {
   
       this.logger.log({
         message: `[RES] setUserAsAdmin ${userId}`,
+        response: updatedUser,
+        source,
+      });
+  
+      return updatedUser;
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(error.message, error instanceof NotFoundException ? 404 : 500);
+    }
+  }
+
+  async updateUserName(userId: string, name: string): Promise<UserDocument> {
+    const source = 'UserService -> updateUserName()';
+  
+    this.logger.log({
+      message: `[REQ] updateUserName ${userId}`,
+      source,
+    });
+  
+    try {
+      const updatedUser = await this.userModel
+        .findByIdAndUpdate(userId, { name }, { new: true })
+        .exec();
+  
+      if (!updatedUser) {
+        throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+      }
+  
+      this.logger.log({
+        message: `[RES] updateUserName ${userId}`,
         response: updatedUser,
         source,
       });

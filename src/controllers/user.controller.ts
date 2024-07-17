@@ -160,4 +160,42 @@ async setUserAsAdmin(@Param('id') id: string) {
     throw new InternalServerErrorException('Error al establecer usuario como administrador');
   }
 }
+
+@Put(':id/update-name')
+@ApiOperation({ summary: 'Actualizar nombre de usuario' })
+@ApiResponse({ status: 200, description: 'Nombre de usuario actualizado con éxito' })
+@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+@ApiResponse({ status: 500, description: 'Error interno del servidor' })
+async updateUserName(@Param('id') id: string, @Body('name') name: string) {
+  const source = 'UserController -> updateUserName()';
+
+  this.logger.log({
+    message: `[REQ] PUT /user/${id}/update-name - updateUserName()`,
+    source,
+    id,
+    name,
+  });
+
+  try {
+    const response = await this.userService.updateUserName(id, name);
+
+    this.logger.log({
+      message: `[RES] PUT /user/${id}/update-name - updateUserName()`,
+      response,
+      source,
+    });
+
+    return response;
+  } catch (error) {
+    this.logger.error({
+      message: `[ERR] PUT /user/${id}/update-name - updateUserName()`,
+      error,
+      source,
+    });
+    if (error instanceof NotFoundException) {
+      throw error;
+    }
+    throw new InternalServerErrorException('Error al actualizar el nombre del usuario');
+  }
+}
 }
