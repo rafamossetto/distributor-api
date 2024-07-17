@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remito</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .info .left,
+        .info .right {
+            width: 48%;
+        }
+        .info .right {
+            text-align: right;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            border-bottom: 1px solid black;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .signature {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .signature div {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Documento no valido como factura.</h1>
+        </div>
+        <div class="info">
+            <div class="left">
+                <p>Remito: {{remitNumber}}</p>
+                <p>Nombre: {{client}}</p>
+                <p>Numero de cliente: {{clientNumber}}</p>
+                <p>Dirección: {{address}}</p>
+                <p>Teléfono: {{phoneNumber}}</p>
+            </div>
+            <div class="right">
+                <p>Fecha: {{date}}</p>
+                <p>Hora: {{hour}}</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Cod. Articulo</th>
+                    <th>Cantidad</th>
+                    <th>Descripcion</th>
+                    <th>Precio unitario</th>
+                    <th>Precio total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each items}}
+                <tr>
+                    <td>{{this.code}}</td>
+                    <td>{{this.quantity}}</td>
+                    <td>{{this.description}}</td>
+                    <td>{{this.unitPrice}}</td>
+                    <td>{{this.totalPrice}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <div class="footer">
+            <div>
+                <p>Son: {{amountInLetters}}</p>
+            </div>
+            <div>
+                <p>Subtotal: {{subTotal}}</p>
+                <p>Total: {{total}}</p>
+                <p>Total articulos: {{totalArticles}}</p>
+            </div>
+        </div>
+        <div class="signature">
+            <div>Firma: ______________________</div>
+            <div>Aclaracion: __________________</div>
+            <div>DNI: ________________________</div>
+        </div>
+    </div>
+</body>
+</html>

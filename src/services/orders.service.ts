@@ -12,11 +12,11 @@ export class OrderService {
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  async getAll(userId: string): Promise<HydratedDocument<Order>[]> {
+  getAll(userId: string): Promise<HydratedDocument<Order>[]> {
     const source = 'OrderService -> getAll()';
 
     try {
-      return await this.orderModel.find({ userId }).sort(this.GET_ALL_SORT_PARAM).exec();
+      return this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -26,18 +26,17 @@ export class OrderService {
       throw new HttpException(error.toString(), 500);
     }
   }
-
   async create(createOrderDto: OrderDto, userId: string): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> create()';
-  
+
     const orderCount = await this.orderModel.countDocuments();
-  
+
     try {
       const productsWithUserId = createOrderDto.products.map(product => ({
         ...product,
         userId
       }));
-  
+
       return await this.orderModel.create({
         ...createOrderDto,
         products: productsWithUserId,
@@ -55,14 +54,14 @@ export class OrderService {
     }
   }
 
-  async getBySelectedList(selectedList: string): Promise<HydratedDocument<Order>[]> {
+  getBySelectedList(selectedList: string): Promise<HydratedDocument<Order>[]> {
     const source = 'OrderService -> getBySelectedList()';
     const filterParams: FilterQuery<Order> = {
       selectedList: selectedList,
     };
 
     try {
-      return await this.orderModel.find(filterParams).exec();
+      return this.orderModel.find(filterParams).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -73,11 +72,11 @@ export class OrderService {
     }
   }
 
-  async getById(id: string): Promise<HydratedDocument<Order>> {
+  getById(id: string): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> getById()';
 
     try {
-      return await this.orderModel.findById(id).exec();
+      return this.orderModel.findById(id).exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -93,6 +92,7 @@ export class OrderService {
   
     try {
       const result = await this.orderModel.deleteOne({ _id: id }).exec();
+      //To Vle: Los services no logean
       this.logger.log({
         message: `${source} - Order deleted successfully with id ${id}`,
         result,
@@ -110,9 +110,9 @@ export class OrderService {
   }
   
 
-  async deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
     try {
-      return await this.orderModel.deleteMany({}).exec();
+      return this.orderModel.deleteMany({}).exec();
     } catch (error) {
       this.logger.error({
         message: `OrderService -> deleteAll() - ${error.toString()}`,
