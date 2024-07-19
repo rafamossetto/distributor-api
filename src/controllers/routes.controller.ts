@@ -36,25 +36,31 @@ export class RoutesController {
   @Get()
   @ApiResponse({
     status: 200,
-    description: 'List all routes or filter by date',
+    description: 'List all routes or filter by date and/or user',
     type: [Route],
   })
-  async getAllRoutes(
+  async getRoutes(
     @Req() req,
     @Query('date') date?: string,
+    @Query('userId') userId?: string,
   ): Promise<Route[]> {
-    const userId = req.user.id;
+    const requestingUserId = req.user.id;
     const isAdmin = req.user.role === 'admin';
 
     if (date) {
-      console.log('Received date query:', date);
-      return isAdmin
-        ? this.routesService.getRoutesByDate(date)
-        : this.routesService.getRoutesByDate(date, userId);
+      if (isAdmin) {
+        return this.routesService.getRoutesByDate(date, userId);
+      } else {
+        return this.routesService.getRoutesByDate(date, requestingUserId);
+      }
     } else {
-      return isAdmin
-        ? this.routesService.getAllRoutesAdmin()
-        : this.routesService.getAllRoutes(userId);
+      if (isAdmin) {
+        return userId
+          ? this.routesService.getRoutesByUserId(userId)
+          : this.routesService.getAllRoutesAdmin();
+      } else {
+        return this.routesService.getAllRoutes(requestingUserId);
+      }
     }
   }
 

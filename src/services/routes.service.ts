@@ -64,14 +64,14 @@ export class RoutesService {
     try {
       const searchDate = new Date(date);
       searchDate.setUTCHours(0, 0, 0, 0);
-
-      const query = { date: searchDate };
+  
+      const query: any = { date: searchDate };
       if (userId) {
-        query['userId'] = userId;
+        query.userId = userId;
       }
-
+  
       const routes = await this.routesModel.find(query).exec();
-
+  
       return routes;
     } catch (error) {
       this.logger.error({
