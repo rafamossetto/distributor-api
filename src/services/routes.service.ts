@@ -31,6 +31,20 @@ export class RoutesService {
     }
   }
 
+  async getRoutesByUserId(userId: string): Promise<Route[]> {
+    const source = 'RoutesService -> getRoutesByUserId()';
+    try {
+      return await this.routesModel.find({ userId }).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
   async getAllRoutesAdmin(): Promise<Route[]> {
     const source = 'RoutesService -> getAllRoutesAdmin()';
     try {

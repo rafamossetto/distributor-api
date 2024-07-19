@@ -206,6 +206,47 @@ export class RoutesController {
     }
   }
 
+  @Get('user/:userId')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Obtener rutas por ID de usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de rutas del usuario',
+    type: [Route],
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  async getRoutesByUserId(
+    @Param('userId') userId: string,
+    @Req() req,
+  ): Promise<Route[]> {
+    const source = 'RoutesController -> getRoutesByUserId()';
+
+    this.logger.log({
+      message: `[REQ] GET /routes/user/${userId} - getRoutesByUserId()`,
+      source,
+      userId,
+    });
+
+    try {
+      const routes = await this.routesService.getRoutesByUserId(userId);
+
+      this.logger.log({
+        message: `[RES] GET /routes/user/${userId} - getRoutesByUserId()`,
+        response: routes,
+        source,
+      });
+
+      return routes;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] GET /routes/user/${userId} - getRoutesByUserId()`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
   @Delete(':id')
   @ApiResponse({ status: 201, description: 'Delete Route', type: Boolean })
   async deleteRoute(@Param('id') id: string): Promise<boolean> {
