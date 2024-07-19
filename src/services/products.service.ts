@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ProductDto } from 'src/dto';
@@ -19,6 +19,21 @@ export class ProductsService {
   getAll(): Promise<HydratedDocument<Product>[]> {
     const source = 'ProductsService -> getAll()';
 
+    try {
+      return this.productModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
+  async getAllProductsAdmin(): Promise<Product[]> {
+    const source = 'ProductsService -> getAllProductsAdmin()';
+  
     try {
       return this.productModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
     } catch (error) {
@@ -127,6 +142,44 @@ export class ProductsService {
       throw new HttpException(error.message, error.status || 500);
     }
   }
+
+  async assignProductToUser(productId: string, userId: string): Promise<Product> {
+    const source = 'ProductsService -> assignProductToUser()';
+
+    try {
+      const product = await this.productModel.findByIdAndUpdate(
+        productId,
+        { userId: userId },
+        { new: true }
+      ).exec();
+
+      if (!product) {
+        this.logger.warn({
+          message: `Product with ID ${productId} not found`,
+          source,
+        });
+        throw new NotFoundException(`Producto con ID ${productId} no encontrado`);
+      }
+
+      this.logger.log({
+        message: `Product assigned successfully`,
+        productId,
+        userId,
+        source,
+      });
+
+      return product;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw error;
+    }
+  }
+
 
   async delete(
     id: string,

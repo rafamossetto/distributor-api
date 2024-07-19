@@ -12,7 +12,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AdminGuard } from 'src/auth/admin.guard';
 import { ProductDto } from 'src/dto';
 import { Product } from 'src/schemas';
 import { ProductsService } from 'src/services';
@@ -35,7 +36,12 @@ export class ProductsController {
       source,
     });
 
-    const response = await this.productsService.getAllByUser(req.user.id);
+    let response: Product[];
+    if (req.user.role === 'admin') {
+      response = await this.productsService.getAllProductsAdmin();
+    } else {
+      response = await this.productsService.getAllByUser(req.user.id);
+    }
 
     this.logger.log({
       message: '[RES] GET /products - getAllProducts()',
@@ -74,6 +80,52 @@ export class ProductsController {
     return response;
   }
 
+  @Put('assign/:productId/:userId')
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @ApiOperation({ summary: 'Asignar producto a usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Producto asignado con éxito',
+    type: Product,
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 404, description: 'Producto o usuario no encontrado' })
+  async assignProductToUser(
+    @Param('productId') productId: string,
+    @Param('userId') userId: string,
+  ): Promise<Product> {
+    const source = 'ProductsController -> assignProductToUser()';
+
+    this.logger.log({
+      message: `[REQ] PUT /products/assign/${productId}/${userId} - assignProductToUser()`,
+      source,
+      productId,
+      userId,
+    });
+
+    try {
+      const response = await this.productsService.assignProductToUser(
+        productId,
+        userId,
+      );
+
+      this.logger.log({
+        message: `[RES] PUT /products/assign/${productId}/${userId} - assignProductToUser()`,
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] PUT /products/assign/${productId}/${userId} - assignProductToUser()`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
   @Put(':id')
   @ApiResponse({ status: 200, description: 'Update Product', type: Product })
   async updateProduct(
@@ -82,23 +134,27 @@ export class ProductsController {
     @Req() req,
   ): Promise<Product> {
     const source = 'ProductsController -> updateProduct()';
-  
+
     this.logger.log({
       message: `[REQ] PUT /products/${id} - updateProduct()`,
       source,
       body: updateProductDto,
     });
-  
+
     const userId = req.user.id;
-  
-    const response = await this.productsService.update(id, updateProductDto, userId);
-  
+
+    const response = await this.productsService.update(
+      id,
+      updateProductDto,
+      userId,
+    );
+
     this.logger.log({
       message: `[RES] PUT /products/${id} - updateProduct()`,
       response,
       source,
     });
-  
+
     return response;
   }
 

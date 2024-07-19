@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ClientDto, UpdateClientDto } from 'src/dto';
@@ -33,6 +33,10 @@ export class ClientsService {
     }
   }
 
+  async getAllClients(): Promise<Client[]> {
+    return this.clientModel.find().exec();
+  }
+  
   async create(createClientDto: ClientDto & { userId: string }): Promise<HydratedDocument<Client>> {
     const source = 'ClientsService -> create()';
 
@@ -134,5 +138,19 @@ export class ClientsService {
       });
       throw new HttpException(error.message, 500);
     }
+  }
+
+  async assignClientToUser(clientId: string, userId: string): Promise<Client> {
+    const client = await this.clientModel.findByIdAndUpdate(
+      clientId,
+      { userId: userId },
+      { new: true }
+    ).exec();
+  
+    if (!client) {
+      throw new NotFoundException(`Cliente con ID ${clientId} no encontrado`);
+    }
+  
+    return client;
   }
 }

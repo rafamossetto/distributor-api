@@ -12,7 +12,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 import {
   RouteDto,
@@ -23,6 +23,7 @@ import {
 import { Route } from 'src/schemas';
 import { RoutesService } from 'src/services';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('routes')
 @ApiTags('routes')
@@ -38,41 +39,50 @@ export class RoutesController {
     description: 'List all routes or filter by date',
     type: [Route],
   })
-  async getAllRoutes(@Req() req, @Query('date') date?: string): Promise<Route[]> {
+  async getAllRoutes(
+    @Req() req,
+    @Query('date') date?: string,
+  ): Promise<Route[]> {
     const userId = req.user.id;
+    const isAdmin = req.user.role === 'admin';
+
     if (date) {
       console.log('Received date query:', date);
-      return this.routesService.getRoutesByDate(date, userId);
+      return isAdmin
+        ? this.routesService.getRoutesByDate(date)
+        : this.routesService.getRoutesByDate(date, userId);
     } else {
-      return this.routesService.getAllRoutes(userId);
+      return isAdmin
+        ? this.routesService.getAllRoutesAdmin()
+        : this.routesService.getAllRoutes(userId);
     }
   }
 
   @Post()
-@ApiResponse({ status: 201, description: 'Create Route', type: Route })
-async createRoute(
-  @Body() routeDto: RouteDto,
-  @Req() req,
-): Promise<HydratedDocument<Route>> {
-  const source = 'RoutesController -> createRoute()';
+  @ApiResponse({ status: 201, description: 'Create Route', type: Route })
+  async createRoute(
+    @Body() routeDto: RouteDto,
+    @Req() req,
+  ): Promise<HydratedDocument<Route>> {
+    const source = 'RoutesController -> createRoute()';
 
-  this.logger.log({
-    message: '[REQ] POST /routes - createRoute()',
-    source,
-    body: routeDto,
-  });
+    this.logger.log({
+      message: '[REQ] POST /routes - createRoute()',
+      source,
+      body: routeDto,
+    });
 
-  const userId = req.user.id; 
-  const response = await this.routesService.create(routeDto, userId);
+    const userId = req.user.id;
+    const response = await this.routesService.create(routeDto, userId);
 
-  this.logger.log({
-    message: '[RES] POST /routes - createRoute()',
-    response,
-    source,
-  });
+    this.logger.log({
+      message: '[RES] POST /routes - createRoute()',
+      response,
+      source,
+    });
 
-  return response;
-}
+    return response;
+  }
 
   @Put('status')
   @ApiResponse({ status: 201, description: 'Update Route Status', type: Route })
@@ -148,6 +158,52 @@ async createRoute(
     });
 
     return response;
+  }
+
+  @Put('assign/:routeId/:userId')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Asignar ruta a usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Ruta asignada con éxito',
+    type: Route,
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 404, description: 'Ruta o usuario no encontrado' })
+  async assignRouteToUser(
+    @Param('routeId') routeId: string,
+    @Param('userId') userId: string,
+  ): Promise<Route> {
+    const source = 'RoutesController -> assignRouteToUser()';
+
+    this.logger.log({
+      message: `[REQ] PUT /routes/assign/${routeId}/${userId} - assignRouteToUser()`,
+      source,
+      routeId,
+      userId,
+    });
+
+    try {
+      const response = await this.routesService.assignRouteToUser(
+        routeId,
+        userId,
+      );
+
+      this.logger.log({
+        message: `[RES] PUT /routes/assign/${routeId}/${userId} - assignRouteToUser()`,
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] PUT /routes/assign/${routeId}/${userId} - assignRouteToUser()`,
+        error,
+        source,
+      });
+      throw error;
+    }
   }
 
   @Delete(':id')

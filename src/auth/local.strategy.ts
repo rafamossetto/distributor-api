@@ -7,7 +7,7 @@ import { UserDocument } from 'src/schemas/user.schema';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
-    super(); // Configura la estrategia local (por defecto, espera username y password en el cuerpo de la solicitud)
+    super();
   }
 
   async validate(username: string, password: string): Promise<UserDocument> {

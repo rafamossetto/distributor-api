@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Logger,
   Param,
   Post,
@@ -11,11 +12,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderDto } from 'src/dto';
 import { OrderService } from 'src/services/orders.service';
 import { Order, Product } from 'src/schemas';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -25,27 +27,43 @@ export class OrderController {
 
   constructor(private readonly orderService: OrderService) {}
 
-  @Get()
-  @ApiResponse({ status: 200, description: 'Get Buy Orders' })
-  async getOrders(@Req() req): Promise<Order[]> {
-    const source = 'OrderController -> getOrders()';
-    const userId = req.user.id;
-    
-    this.logger.log({
-      message: '[REQ] GET /orders - getOrders()',
-      source,
-      userId,
-    });
-
-    const response = await this.orderService.getAll(userId);
+  @Get('all')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Obtener todas las órdenes (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de todas las órdenes',
+    type: [Order],
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  async getAllOrdersAdmin(): Promise<Order[]> {
+    const source = 'OrderController -> getAllOrdersAdmin()';
 
     this.logger.log({
-      message: '[RES] GET /orders - getOrders()',
-      response,
+      message: '[REQ] GET /orders/all - getAllOrdersAdmin()',
       source,
     });
 
-    return response;
+    try {
+      const response = await this.orderService.getAllOrders();
+
+      this.logger.log({
+        message: '[RES] GET /orders/all - getAllOrdersAdmin()',
+        length: response?.length,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: '[ERR] GET /orders/all - getAllOrdersAdmin()',
+        error,
+        source,
+      });
+      throw new InternalServerErrorException(
+        'Error al obtener todas las órdenes',
+      );
+    }
   }
 
   @Post()
@@ -199,5 +217,51 @@ export class OrderController {
     });
 
     return response;
+  }
+
+  @Put('assign/:orderId/:userId')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Asignar orden a usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Orden asignada con éxito',
+    type: Order,
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 404, description: 'Orden o usuario no encontrado' })
+  async assignOrderToUser(
+    @Param('orderId') orderId: string,
+    @Param('userId') userId: string,
+  ): Promise<Order> {
+    const source = 'OrderController -> assignOrderToUser()';
+
+    this.logger.log({
+      message: `[REQ] PUT /orders/assign/${orderId}/${userId} - assignOrderToUser()`,
+      source,
+      orderId,
+      userId,
+    });
+
+    try {
+      const response = await this.orderService.assignOrderToUser(
+        orderId,
+        userId,
+      );
+
+      this.logger.log({
+        message: `[RES] PUT /orders/assign/${orderId}/${userId} - assignOrderToUser()`,
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] PUT /orders/assign/${orderId}/${userId} - assignOrderToUser()`,
+        error,
+        source,
+      });
+      throw error;
+    }
   }
 }

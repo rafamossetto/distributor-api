@@ -6,6 +6,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
   Logger,
   Param,
   Post,
@@ -13,12 +14,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 import { ClientDto, UpdateClientDto } from 'src/dto/client.dto';
 import { Client } from 'src/schemas';
 import { ClientsService } from 'src/services';
 import { AuthGuard } from '@nestjs/passport';
+import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('clients')
 @ApiTags('clients')
@@ -27,6 +29,45 @@ export class ClientsController {
   private readonly logger = new Logger(ClientsController.name);
 
   constructor(private readonly clientsService: ClientsService) {}
+
+  @Get('all')
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @ApiOperation({ summary: 'Obtener todos los clientes (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de todos los clientes',
+    type: [Client],
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  async getAllClientsAdmin(): Promise<Client[]> {
+    const source = 'ClientsController -> getAllClientsAdmin()';
+
+    this.logger.log({
+      message: '[REQ] GET /clients/all - getAllClientsAdmin()',
+      source,
+    });
+
+    try {
+      const response = await this.clientsService.getAllClients();
+
+      this.logger.log({
+        message: '[RES] GET /clients/all - getAllClientsAdmin()',
+        length: response?.length,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: '[ERR] GET /clients/all - getAllClientsAdmin()',
+        error,
+        source,
+      });
+      throw new InternalServerErrorException(
+        'Error al obtener todos los clientes',
+      );
+    }
+  }
 
   @Get()
   @ApiResponse({
@@ -54,49 +95,98 @@ export class ClientsController {
   }
 
   @Post()
-@ApiResponse({ status: 201, description: 'Create Client', type: Client })
-async createClient(
-  @Body() clientDto: ClientDto,
-  @Req() req,
-): Promise<HydratedDocument<Client>> {
-  const source = 'ClientsController -> createClient()';
+  @ApiResponse({ status: 201, description: 'Create Client', type: Client })
+  async createClient(
+    @Body() clientDto: ClientDto,
+    @Req() req,
+  ): Promise<HydratedDocument<Client>> {
+    const source = 'ClientsController -> createClient()';
 
-  this.logger.log({
-    message: '[REQ] POST /clients - createClient()',
-    source,
-    body: clientDto,
-  });
+    this.logger.log({
+      message: '[REQ] POST /clients - createClient()',
+      source,
+      body: clientDto,
+    });
 
-  const userId = req.user?.id;
+    const userId = req.user?.id;
 
-  if (!userId) throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
+    if (!userId)
+      throw new HttpException(
+        'User not authenticated',
+        HttpStatus.UNAUTHORIZED,
+      );
 
-  this.logger.log({
-    message: 'Extracting userId from JWT',
-    userId,
-    source,
-  });
+    this.logger.log({
+      message: 'Extracting userId from JWT',
+      userId,
+      source,
+    });
 
-  // Agregar userId desde req.user.id
-  const clientData = { ...clientDto, userId };
+    // Agregar userId desde req.user.id
+    const clientData = { ...clientDto, userId };
 
-  this.logger.log({
-    message: 'Creating client with data',
-    clientData,
-    source,
-  });
+    this.logger.log({
+      message: 'Creating client with data',
+      clientData,
+      source,
+    });
 
-  const response = await this.clientsService.create(clientData);
+    const response = await this.clientsService.create(clientData);
 
-  this.logger.log({
-    message: '[RES] POST /clients - createClient()',
-    response,
-    source,
-  });
+    this.logger.log({
+      message: '[RES] POST /clients - createClient()',
+      response,
+      source,
+    });
 
-  return response;
-}
-  
+    return response;
+  }
+
+  @Put('assign/:clientId/:userId')
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @ApiOperation({ summary: 'Asignar cliente a usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Cliente asignado con éxito',
+    type: Client,
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 404, description: 'Cliente o usuario no encontrado' })
+  async assignClientToUser(
+    @Param('clientId') clientId: string,
+    @Param('userId') userId: string,
+  ): Promise<Client> {
+    const source = 'ClientsController -> assignClientToUser()';
+
+    this.logger.log({
+      message: `[REQ] PUT /clients/assign/${clientId}/${userId} - assignClientToUser()`,
+      source,
+      clientId,
+      userId,
+    });
+
+    try {
+      const response = await this.clientsService.assignClientToUser(
+        clientId,
+        userId,
+      );
+
+      this.logger.log({
+        message: `[RES] PUT /clients/assign/${clientId}/${userId} - assignClientToUser()`,
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] PUT /clients/assign/${clientId}/${userId} - assignClientToUser()`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
 
   @Put()
   @ApiResponse({ status: 201, description: 'Update Client', type: [Client] })

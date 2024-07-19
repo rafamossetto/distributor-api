@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { OrderDto } from 'src/dto/order.dto';
@@ -26,6 +26,65 @@ export class OrderService {
       throw new HttpException(error.toString(), 500);
     }
   }
+
+  async getAllOrders(): Promise<Order[]> {
+    const source = 'OrderService -> getAllOrders()';
+
+    try {
+      this.logger.log({
+        message: 'Fetching all orders',
+        source,
+      });
+
+      return this.orderModel.find().exec();
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
+    }
+  }
+
+  async assignOrderToUser(orderId: string, userId: string): Promise<Order> {
+    const source = 'OrderService -> assignOrderToUser()';
+
+    try {
+      const order = await this.orderModel.findByIdAndUpdate(
+        orderId,
+        { userId: userId },
+        { new: true }
+      ).exec();
+
+      if (!order) {
+        this.logger.warn({
+          message: `Order with ID ${orderId} not found`,
+          source,
+        });
+        throw new NotFoundException(`Orden con ID ${orderId} no encontrada`);
+      }
+
+      this.logger.log({
+        message: `Order assigned successfully`,
+        orderId,
+        userId,
+        source,
+      });
+
+      return order;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw error;
+    }
+  }
+
   async create(createOrderDto: OrderDto, userId: string): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> create()';
 
@@ -121,6 +180,7 @@ export class OrderService {
       throw new HttpException(error.toString(), 500);
     }
   }
+  
   async updateById(id: string, updateOrderDto: OrderDto): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> updateById()';
 

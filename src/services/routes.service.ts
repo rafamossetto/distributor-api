@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import {
@@ -31,18 +31,33 @@ export class RoutesService {
     }
   }
 
-  async getRoutesByDate(date: string, userId: string): Promise<Route[]> {
+  async getAllRoutesAdmin(): Promise<Route[]> {
+    const source = 'RoutesService -> getAllRoutesAdmin()';
+    try {
+      return await this.routesModel.find().exec();
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw error;
+    }
+  }
+
+  async getRoutesByDate(date: string, userId?: string): Promise<Route[]> {
     const source = 'RoutesService -> getRoutesByDate()';
     try {
       const searchDate = new Date(date);
       searchDate.setUTCHours(0, 0, 0, 0);
-  
-  
-      const routes = await this.routesModel.find({
-        date: searchDate,
-        userId,
-      }).exec();
-  
+
+      const query = { date: searchDate };
+      if (userId) {
+        query['userId'] = userId;
+      }
+
+      const routes = await this.routesModel.find(query).exec();
+
       return routes;
     } catch (error) {
       this.logger.error({
@@ -53,18 +68,56 @@ export class RoutesService {
       throw error;
     }
   }
-  
-  async create(createRouteDto: RouteDto, userId: string): Promise<HydratedDocument<Route>> {
+
+  async assignRouteToUser(routeId: string, userId: string): Promise<Route> {
+    const source = 'RoutesService -> assignRouteToUser()';
+
+    try {
+      const route = await this.routesModel
+        .findByIdAndUpdate(routeId, { userId: userId }, { new: true })
+        .exec();
+
+      if (!route) {
+        this.logger.warn({
+          message: `Route with ID ${routeId} not found`,
+          source,
+        });
+        throw new NotFoundException(`Ruta con ID ${routeId} no encontrada`);
+      }
+
+      this.logger.log({
+        message: `Route assigned successfully`,
+        routeId,
+        userId,
+        source,
+      });
+
+      return route;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw error;
+    }
+  }
+
+  async create(
+    createRouteDto: RouteDto,
+    userId: string,
+  ): Promise<HydratedDocument<Route>> {
     const source = 'RoutesService -> create()';
     try {
-      const clientsWithUserId = createRouteDto.clients.map(client => ({
+      const clientsWithUserId = createRouteDto.clients.map((client) => ({
         ...client,
-        userId
+        userId,
       }));
-  
+
       const routeDate = new Date(createRouteDto.date);
       routeDate.setUTCHours(0, 0, 0, 0);
-  
+
       const route = await this.routesModel.create({
         ...createRouteDto,
         date: routeDate,
@@ -72,11 +125,9 @@ export class RoutesService {
         open: true,
         userId,
       });
-  
-  
+
       return route;
     } catch (error) {
-  
       this.logger.error({
         message: `${source} - ${error.toString()}`,
         error,
