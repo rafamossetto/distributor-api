@@ -126,46 +126,48 @@ export class ProductsController {
     }
   }
 
-  @Put('unassign/:productId')
-@UseGuards(AuthGuard('jwt'), AdminGuard)
-@ApiOperation({ summary: 'Desasignar producto de usuario (solo admin)' })
-@ApiResponse({
-  status: 200,
-  description: 'Producto desasignado con éxito',
-  type: Product,
-})
-@ApiResponse({ status: 403, description: 'Acceso denegado' })
-@ApiResponse({ status: 404, description: 'Producto no encontrado' })
-async unassignProductFromUser(
-  @Param('productId') productId: string,
-): Promise<Product> {
-  const source = 'ProductsController -> unassignProductFromUser()';
-
-  this.logger.log({
-    message: `[REQ] PUT /products/unassign/${productId} - unassignProductFromUser()`,
-    source,
-    productId,
-  });
-
-  try {
-    const response = await this.productsService.unassignProductFromUser(productId);
-
+  @Put('unassign/:productId/:userId')
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @ApiOperation({ summary: 'Desasignar producto de usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Producto desasignado con éxito',
+    type: Product,
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado o no asignado al usuario especificado' })
+  async unassignProductFromUser(
+    @Param('productId') productId: string,
+    @Param('userId') userId: string,
+  ): Promise<Product> {
+    const source = 'ProductsController -> unassignProductFromUser()';
+  
     this.logger.log({
-      message: `[RES] PUT /products/unassign/${productId} - unassignProductFromUser()`,
-      response,
+      message: `[REQ] PUT /products/unassign/${productId}/${userId} - unassignProductFromUser()`,
       source,
+      productId,
+      userId,
     });
-
-    return response;
-  } catch (error) {
-    this.logger.error({
-      message: `[ERR] PUT /products/unassign/${productId} - unassignProductFromUser()`,
-      error,
-      source,
-    });
-    throw error;
+  
+    try {
+      const response = await this.productsService.unassignProductFromUser(productId, userId);
+  
+      this.logger.log({
+        message: `[RES] PUT /products/unassign/${productId}/${userId} - unassignProductFromUser()`,
+        response,
+        source,
+      });
+  
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] PUT /products/unassign/${productId}/${userId} - unassignProductFromUser()`,
+        error,
+        source,
+      });
+      throw error;
+    }
   }
-}
 
   @Put(':id')
   @ApiResponse({ status: 200, description: 'Update Product', type: Product })

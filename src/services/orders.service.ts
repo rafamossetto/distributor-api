@@ -85,27 +85,23 @@ export class OrderService {
     }
   }
 
-  async unassignOrderFromUser(orderId: string): Promise<Order> {
+  async unassignOrderFromUser(orderId: string, userId: string): Promise<Order> {
     const source = 'OrderService -> unassignOrderFromUser()';
   
     try {
-      const order = await this.orderModel.findByIdAndUpdate(
-        orderId,
-        { $unset: { userId: "" } },
-        { new: true }
-      ).exec();
+      const order = await this.orderModel.findOne({ _id: orderId, userId: userId }).exec();
   
       if (!order) {
-        this.logger.warn({
-          message: `Order with ID ${orderId} not found`,
-          source,
-        });
-        throw new NotFoundException(`Orden con ID ${orderId} no encontrada`);
+        throw new NotFoundException(`Orden con ID ${orderId} no encontrada o no asignada al usuario ${userId}`);
       }
+  
+      order.userId = undefined;
+      await order.save();
   
       this.logger.log({
         message: `Order unassigned successfully`,
         orderId,
+        userId,
         source,
       });
   

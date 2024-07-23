@@ -154,17 +154,35 @@ export class ClientsService {
     return client;
   }
 
-  async unassignClientFromUser(clientId: string): Promise<Client> {
-    const client = await this.clientModel.findByIdAndUpdate(
-      clientId,
-      { $unset: { userId: "" } },
-      { new: true }
-    ).exec();
+  async unassignClientFromUser(clientId: string, userId: string): Promise<Client> {
+    const source = 'ClientsService -> unassignClientFromUser()';
   
-    if (!client) {
-      throw new NotFoundException(`Cliente con ID ${clientId} no encontrado`);
+    try {
+      const client = await this.clientModel.findOne({ _id: clientId, userId: userId }).exec();
+  
+      if (!client) {
+        throw new NotFoundException(`Cliente con ID ${clientId} no encontrado o no asignado al usuario ${userId}`);
+      }
+  
+      client.userId = undefined;
+      await client.save();
+  
+      this.logger.log({
+        message: `Client unassigned successfully`,
+        clientId,
+        userId,
+        source,
+      });
+  
+      return client;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw error;
     }
-  
-    return client;
   }
 }

@@ -188,7 +188,7 @@ export class ClientsController {
     }
   }
 
-  @Put('unassign/:clientId')
+  @Put('unassign/:clientId/:userId')
 @UseGuards(AuthGuard('jwt'), AdminGuard)
 @ApiOperation({ summary: 'Desasignar cliente de usuario (solo admin)' })
 @ApiResponse({
@@ -197,23 +197,25 @@ export class ClientsController {
   type: Client,
 })
 @ApiResponse({ status: 403, description: 'Acceso denegado' })
-@ApiResponse({ status: 404, description: 'Cliente no encontrado' })
+@ApiResponse({ status: 404, description: 'Cliente no encontrado o no asignado al usuario especificado' })
 async unassignClientFromUser(
   @Param('clientId') clientId: string,
+  @Param('userId') userId: string,
 ): Promise<Client> {
   const source = 'ClientsController -> unassignClientFromUser()';
 
   this.logger.log({
-    message: `[REQ] PUT /clients/unassign/${clientId} - unassignClientFromUser()`,
+    message: `[REQ] PUT /clients/unassign/${clientId}/${userId} - unassignClientFromUser()`,
     source,
     clientId,
+    userId,
   });
 
   try {
-    const response = await this.clientsService.unassignClientFromUser(clientId);
+    const response = await this.clientsService.unassignClientFromUser(clientId, userId);
 
     this.logger.log({
-      message: `[RES] PUT /clients/unassign/${clientId} - unassignClientFromUser()`,
+      message: `[RES] PUT /clients/unassign/${clientId}/${userId} - unassignClientFromUser()`,
       response,
       source,
     });
@@ -221,7 +223,7 @@ async unassignClientFromUser(
     return response;
   } catch (error) {
     this.logger.error({
-      message: `[ERR] PUT /clients/unassign/${clientId} - unassignClientFromUser()`,
+      message: `[ERR] PUT /clients/unassign/${clientId}/${userId} - unassignClientFromUser()`,
       error,
       source,
     });
