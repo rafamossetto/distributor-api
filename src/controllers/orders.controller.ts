@@ -306,5 +306,5 @@ export class OrderController {
       });
       throw error;
     }
-  }
+  }   
 }

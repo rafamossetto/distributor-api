@@ -158,14 +158,15 @@ export class ClientsService {
     const source = 'ClientsService -> unassignClientFromUser()';
   
     try {
-      const client = await this.clientModel.findOne({ _id: clientId, userId: userId }).exec();
+      const client = await this.clientModel.findOneAndUpdate(
+        { _id: clientId, userId: userId },
+        { $unset: { userId: "" } },
+        { new: true }
+      ).exec();
   
       if (!client) {
         throw new NotFoundException(`Cliente con ID ${clientId} no encontrado o no asignado al usuario ${userId}`);
       }
-  
-      client.userId = undefined;
-      await client.save();
   
       this.logger.log({
         message: `Client unassigned successfully`,

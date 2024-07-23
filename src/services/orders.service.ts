@@ -89,14 +89,15 @@ export class OrderService {
     const source = 'OrderService -> unassignOrderFromUser()';
   
     try {
-      const order = await this.orderModel.findOne({ _id: orderId, userId: userId }).exec();
+      const order = await this.orderModel.findOneAndUpdate(
+        { _id: orderId, userId: userId },
+        { $unset: { userId: "" } },
+        { new: true }
+      ).exec();
   
       if (!order) {
         throw new NotFoundException(`Orden con ID ${orderId} no encontrada o no asignada al usuario ${userId}`);
       }
-  
-      order.userId = undefined;
-      await order.save();
   
       this.logger.log({
         message: `Order unassigned successfully`,

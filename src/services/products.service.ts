@@ -184,14 +184,15 @@ export class ProductsService {
     const source = 'ProductsService -> unassignProductFromUser()';
   
     try {
-      const product = await this.productModel.findOne({ _id: productId, userId: userId }).exec();
+      const product = await this.productModel.findOneAndUpdate(
+        { _id: productId, userId: userId },
+        { $unset: { userId: "" } },
+        { new: true }
+      ).exec();
   
       if (!product) {
         throw new NotFoundException(`Producto con ID ${productId} no encontrado o no asignado al usuario ${userId}`);
       }
-  
-      product.userId = undefined;
-      await product.save();
   
       this.logger.log({
         message: `Product unassigned successfully`,
