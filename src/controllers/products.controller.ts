@@ -126,6 +126,47 @@ export class ProductsController {
     }
   }
 
+  @Put('unassign/:productId')
+@UseGuards(AuthGuard('jwt'), AdminGuard)
+@ApiOperation({ summary: 'Desasignar producto de usuario (solo admin)' })
+@ApiResponse({
+  status: 200,
+  description: 'Producto desasignado con éxito',
+  type: Product,
+})
+@ApiResponse({ status: 403, description: 'Acceso denegado' })
+@ApiResponse({ status: 404, description: 'Producto no encontrado' })
+async unassignProductFromUser(
+  @Param('productId') productId: string,
+): Promise<Product> {
+  const source = 'ProductsController -> unassignProductFromUser()';
+
+  this.logger.log({
+    message: `[REQ] PUT /products/unassign/${productId} - unassignProductFromUser()`,
+    source,
+    productId,
+  });
+
+  try {
+    const response = await this.productsService.unassignProductFromUser(productId);
+
+    this.logger.log({
+      message: `[RES] PUT /products/unassign/${productId} - unassignProductFromUser()`,
+      response,
+      source,
+    });
+
+    return response;
+  } catch (error) {
+    this.logger.error({
+      message: `[ERR] PUT /products/unassign/${productId} - unassignProductFromUser()`,
+      error,
+      source,
+    });
+    throw error;
+  }
+}
+
   @Put(':id')
   @ApiResponse({ status: 200, description: 'Update Product', type: Product })
   async updateProduct(

@@ -179,7 +179,42 @@ export class ProductsService {
       throw error;
     }
   }
-
+  
+  async unassignProductFromUser(productId: string): Promise<Product> {
+    const source = 'ProductsService -> unassignProductFromUser()';
+  
+    try {
+      const product = await this.productModel.findByIdAndUpdate(
+        productId,
+        { $unset: { userId: "" } },
+        { new: true }
+      ).exec();
+  
+      if (!product) {
+        this.logger.warn({
+          message: `Product with ID ${productId} not found`,
+          source,
+        });
+        throw new NotFoundException(`Producto con ID ${productId} no encontrado`);
+      }
+  
+      this.logger.log({
+        message: `Product unassigned successfully`,
+        productId,
+        source,
+      });
+  
+      return product;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw error;
+    }
+  }
 
   async delete(
     id: string,

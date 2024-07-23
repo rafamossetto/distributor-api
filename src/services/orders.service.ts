@@ -85,6 +85,42 @@ export class OrderService {
     }
   }
 
+  async unassignOrderFromUser(orderId: string): Promise<Order> {
+    const source = 'OrderService -> unassignOrderFromUser()';
+  
+    try {
+      const order = await this.orderModel.findByIdAndUpdate(
+        orderId,
+        { $unset: { userId: "" } },
+        { new: true }
+      ).exec();
+  
+      if (!order) {
+        this.logger.warn({
+          message: `Order with ID ${orderId} not found`,
+          source,
+        });
+        throw new NotFoundException(`Orden con ID ${orderId} no encontrada`);
+      }
+  
+      this.logger.log({
+        message: `Order unassigned successfully`,
+        orderId,
+        source,
+      });
+  
+      return order;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw error;
+    }
+  }
+
   async create(createOrderDto: OrderDto, userId: string): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> create()';
 

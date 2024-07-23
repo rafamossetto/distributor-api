@@ -153,4 +153,18 @@ export class ClientsService {
   
     return client;
   }
+
+  async unassignClientFromUser(clientId: string): Promise<Client> {
+    const client = await this.clientModel.findByIdAndUpdate(
+      clientId,
+      { $unset: { userId: "" } },
+      { new: true }
+    ).exec();
+  
+    if (!client) {
+      throw new NotFoundException(`Cliente con ID ${clientId} no encontrado`);
+    }
+  
+    return client;
+  }
 }

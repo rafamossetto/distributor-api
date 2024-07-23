@@ -264,4 +264,45 @@ export class OrderController {
       throw error;
     }
   }
+
+  @Put('unassign/:orderId')
+@UseGuards(JwtAuthGuard, AdminGuard)
+@ApiOperation({ summary: 'Desasignar orden de usuario (solo admin)' })
+@ApiResponse({
+  status: 200,
+  description: 'Orden desasignada con éxito',
+  type: Order,
+})
+@ApiResponse({ status: 403, description: 'Acceso denegado' })
+@ApiResponse({ status: 404, description: 'Orden no encontrada' })
+async unassignOrderFromUser(
+  @Param('orderId') orderId: string,
+): Promise<Order> {
+  const source = 'OrderController -> unassignOrderFromUser()';
+
+  this.logger.log({
+    message: `[REQ] PUT /orders/unassign/${orderId} - unassignOrderFromUser()`,
+    source,
+    orderId,
+  });
+
+  try {
+    const response = await this.orderService.unassignOrderFromUser(orderId);
+
+    this.logger.log({
+      message: `[RES] PUT /orders/unassign/${orderId} - unassignOrderFromUser()`,
+      response,
+      source,
+    });
+
+    return response;
+  } catch (error) {
+    this.logger.error({
+      message: `[ERR] PUT /orders/unassign/${orderId} - unassignOrderFromUser()`,
+      error,
+      source,
+    });
+    throw error;
+  }
+}
 }
