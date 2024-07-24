@@ -1,4 +1,9 @@
-import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { OrderDto } from 'src/dto/order.dto';
@@ -48,15 +53,41 @@ export class OrderService {
     }
   }
 
+  async getOrdersByUserId(userId: string): Promise<Order[]> {
+    const source = 'OrdersService -> getOrdersByUserId()';
+
+    try {
+      this.logger.log({
+        message: 'Fetching orders by user ID',
+        userId,
+        source,
+      });
+
+      const orders = await this.orderModel.find({ userId }).exec();
+
+      if (!orders.length) {
+        throw new NotFoundException(`No orders found for user ID ${userId}`);
+      }
+
+      return orders;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
+    }
+  }
+
   async assignOrderToUser(orderId: string, userId: string): Promise<Order> {
     const source = 'OrderService -> assignOrderToUser()';
 
     try {
-      const order = await this.orderModel.findByIdAndUpdate(
-        orderId,
-        { userId: userId },
-        { new: true }
-      ).exec();
+      const order = await this.orderModel
+        .findByIdAndUpdate(orderId, { userId: userId }, { new: true })
+        .exec();
 
       if (!order) {
         this.logger.warn({
@@ -87,25 +118,29 @@ export class OrderService {
 
   async unassignOrderFromUser(orderId: string, userId: string): Promise<Order> {
     const source = 'OrderService -> unassignOrderFromUser()';
-  
+
     try {
-      const order = await this.orderModel.findOneAndUpdate(
-        { _id: orderId, userId: userId },
-        { $unset: { userId: "" } },
-        { new: true }
-      ).exec();
-  
+      const order = await this.orderModel
+        .findOneAndUpdate(
+          { _id: orderId, userId: userId },
+          { $unset: { userId: '' } },
+          { new: true },
+        )
+        .exec();
+
       if (!order) {
-        throw new NotFoundException(`Orden con ID ${orderId} no encontrada o no asignada al usuario ${userId}`);
+        throw new NotFoundException(
+          `Orden con ID ${orderId} no encontrada o no asignada al usuario ${userId}`,
+        );
       }
-  
+
       this.logger.log({
         message: `Order unassigned successfully`,
         orderId,
         userId,
         source,
       });
-  
+
       return order;
     } catch (error) {
       this.logger.error({
@@ -118,15 +153,18 @@ export class OrderService {
     }
   }
 
-  async create(createOrderDto: OrderDto, userId: string): Promise<HydratedDocument<Order>> {
+  async create(
+    createOrderDto: OrderDto,
+    userId: string,
+  ): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> create()';
 
     const orderCount = await this.orderModel.countDocuments();
 
     try {
-      const productsWithUserId = createOrderDto.products.map(product => ({
+      const productsWithUserId = createOrderDto.products.map((product) => ({
         ...product,
-        userId
+        userId,
       }));
 
       return await this.orderModel.create({
@@ -179,9 +217,11 @@ export class OrderService {
     }
   }
 
-  async deleteById(id: string): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  async deleteById(
+    id: string,
+  ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const source = 'OrderService -> deleteById()';
-  
+
     try {
       const result = await this.orderModel.deleteOne({ _id: id }).exec();
       //To Vle: Los services no logean
@@ -200,7 +240,6 @@ export class OrderService {
       throw new HttpException(error.toString(), 500);
     }
   }
-  
 
   deleteAll(): Promise<{ acknowledged: boolean; deletedCount: number }> {
     try {
@@ -213,16 +252,17 @@ export class OrderService {
       throw new HttpException(error.toString(), 500);
     }
   }
-  
-  async updateById(id: string, updateOrderDto: OrderDto): Promise<HydratedDocument<Order>> {
+
+  async updateById(
+    id: string,
+    updateOrderDto: OrderDto,
+  ): Promise<HydratedDocument<Order>> {
     const source = 'OrderService -> updateById()';
 
     try {
-      const updatedOrder = await this.orderModel.findByIdAndUpdate(
-        id,
-        { ...updateOrderDto },
-        { new: true },
-      ).exec();
+      const updatedOrder = await this.orderModel
+        .findByIdAndUpdate(id, { ...updateOrderDto }, { new: true })
+        .exec();
 
       if (!updatedOrder) {
         throw new HttpException('Order not found', 404);

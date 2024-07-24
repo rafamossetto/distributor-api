@@ -1,4 +1,10 @@
-import { ForbiddenException, HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ProductDto } from 'src/dto';
@@ -33,7 +39,7 @@ export class ProductsService {
 
   async getAllProductsAdmin(): Promise<Product[]> {
     const source = 'ProductsService -> getAllProductsAdmin()';
-  
+
     try {
       return this.productModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
     } catch (error) {
@@ -50,7 +56,10 @@ export class ProductsService {
     const source = 'ProductsService -> getAllByUser()';
 
     try {
-      return this.productModel.find({ userId }).sort(this.GET_ALL_SORT_PARAM).exec();
+      return this.productModel
+        .find({ userId })
+        .sort(this.GET_ALL_SORT_PARAM)
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `${source} - ${error.toString()}`,
@@ -58,6 +67,34 @@ export class ProductsService {
         source,
       });
       throw error;
+    }
+  }
+
+  async getProductsByUserId(userId: string): Promise<Product[]> {
+    const source = 'ProductsService -> getProductsByUserId()';
+
+    try {
+      this.logger.log({
+        message: 'Fetching products by user ID',
+        userId,
+        source,
+      });
+
+      const products = await this.productModel.find({ userId }).exec();
+
+      if (!products.length) {
+        throw new NotFoundException(`No products found for user ID ${userId}`);
+      }
+
+      return products;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
     }
   }
 
@@ -99,36 +136,41 @@ export class ProductsService {
   async update(
     id: string,
     updateParams: Partial<ProductDto>,
-    userId: string
+    userId: string,
   ): Promise<HydratedDocument<Product> | null> {
     const source = 'ProductsService -> update()';
-  
+
     try {
       const product = await this.productModel.findById(id).exec();
       if (!product) {
         throw new HttpException('Product not found', 404);
       }
-  
+
       if (product.userId !== userId) {
-        throw new ForbiddenException('You are not authorized to update this product');
+        throw new ForbiddenException(
+          'You are not authorized to update this product',
+        );
       }
-  
+
       if (updateParams.price !== undefined) {
         const allPercentsList = (await this.pricesListModel.find().exec()).map(
           ({ percent }) => percent,
         );
-  
-        const increasedPrices = getPricesWithPercent(updateParams.price, allPercentsList);
+
+        const increasedPrices = getPricesWithPercent(
+          updateParams.price,
+          allPercentsList,
+        );
         updateParams['prices'] = [updateParams.price, ...increasedPrices];
       }
-  
+
       if (updateParams.name) {
         updateParams.name = updateParams.name.toUpperCase();
       }
-  
+
       // Removing 'price' from updateParams as it's not in the schema
       const { price, ...updateParamsWithoutPrice } = updateParams;
-  
+
       return this.productModel
         .findByIdAndUpdate(id, updateParamsWithoutPrice, { new: true })
         .exec();
@@ -143,22 +185,25 @@ export class ProductsService {
     }
   }
 
-  async assignProductToUser(productId: string, userId: string): Promise<Product> {
+  async assignProductToUser(
+    productId: string,
+    userId: string,
+  ): Promise<Product> {
     const source = 'ProductsService -> assignProductToUser()';
 
     try {
-      const product = await this.productModel.findByIdAndUpdate(
-        productId,
-        { userId: userId },
-        { new: true }
-      ).exec();
+      const product = await this.productModel
+        .findByIdAndUpdate(productId, { userId: userId }, { new: true })
+        .exec();
 
       if (!product) {
         this.logger.warn({
           message: `Product with ID ${productId} not found`,
           source,
         });
-        throw new NotFoundException(`Producto con ID ${productId} no encontrado`);
+        throw new NotFoundException(
+          `Producto con ID ${productId} no encontrado`,
+        );
       }
 
       this.logger.log({
@@ -179,28 +224,35 @@ export class ProductsService {
       throw error;
     }
   }
-  
-  async unassignProductFromUser(productId: string, userId: string): Promise<Product> {
+
+  async unassignProductFromUser(
+    productId: string,
+    userId: string,
+  ): Promise<Product> {
     const source = 'ProductsService -> unassignProductFromUser()';
-  
+
     try {
-      const product = await this.productModel.findOneAndUpdate(
-        { _id: productId, userId: userId },
-        { $unset: { userId: "" } },
-        { new: true }
-      ).exec();
-  
+      const product = await this.productModel
+        .findOneAndUpdate(
+          { _id: productId, userId: userId },
+          { $unset: { userId: '' } },
+          { new: true },
+        )
+        .exec();
+
       if (!product) {
-        throw new NotFoundException(`Producto con ID ${productId} no encontrado o no asignado al usuario ${userId}`);
+        throw new NotFoundException(
+          `Producto con ID ${productId} no encontrado o no asignado al usuario ${userId}`,
+        );
       }
-  
+
       this.logger.log({
         message: `Product unassigned successfully`,
         productId,
         userId,
         source,
       });
-  
+
       return product;
     } catch (error) {
       this.logger.error({

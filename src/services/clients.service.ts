@@ -1,4 +1,9 @@
-import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ClientDto, UpdateClientDto } from 'src/dto';
@@ -21,7 +26,10 @@ export class ClientsService {
         source,
       });
 
-      return this.clientModel.find({ userId }).sort(this.GET_ALL_SORT_PARAM).exec();
+      return this.clientModel
+        .find({ userId })
+        .sort(this.GET_ALL_SORT_PARAM)
+        .exec();
     } catch (error) {
       this.logger.error({
         message: `Error in ${source}`,
@@ -36,8 +44,38 @@ export class ClientsService {
   async getAllClients(): Promise<Client[]> {
     return this.clientModel.find().exec();
   }
-  
-  async create(createClientDto: ClientDto & { userId: string }): Promise<HydratedDocument<Client>> {
+
+  async getClientsByUserId(userId: string): Promise<Client[]> {
+    const source = 'ClientsService -> getClientsByUserId()';
+
+    try {
+      this.logger.log({
+        message: 'Fetching clients by user ID',
+        userId,
+        source,
+      });
+
+      const clients = await this.clientModel.find({ userId }).exec();
+
+      if (!clients.length) {
+        throw new NotFoundException(`No clients found for user ID ${userId}`);
+      }
+
+      return clients;
+    } catch (error) {
+      this.logger.error({
+        message: `Error in ${source}`,
+        error,
+        errorString: error.toString(),
+        source,
+      });
+      throw new HttpException(error.message, 500);
+    }
+  }
+
+  async create(
+    createClientDto: ClientDto & { userId: string },
+  ): Promise<HydratedDocument<Client>> {
     const source = 'ClientsService -> create()';
 
     try {
@@ -141,40 +179,45 @@ export class ClientsService {
   }
 
   async assignClientToUser(clientId: string, userId: string): Promise<Client> {
-    const client = await this.clientModel.findByIdAndUpdate(
-      clientId,
-      { userId: userId },
-      { new: true }
-    ).exec();
-  
+    const client = await this.clientModel
+      .findByIdAndUpdate(clientId, { userId: userId }, { new: true })
+      .exec();
+
     if (!client) {
       throw new NotFoundException(`Cliente con ID ${clientId} no encontrado`);
     }
-  
+
     return client;
   }
 
-  async unassignClientFromUser(clientId: string, userId: string): Promise<Client> {
+  async unassignClientFromUser(
+    clientId: string,
+    userId: string,
+  ): Promise<Client> {
     const source = 'ClientsService -> unassignClientFromUser()';
-  
+
     try {
-      const client = await this.clientModel.findOneAndUpdate(
-        { _id: clientId, userId: userId },
-        { $unset: { userId: "" } },
-        { new: true }
-      ).exec();
-  
+      const client = await this.clientModel
+        .findOneAndUpdate(
+          { _id: clientId, userId: userId },
+          { $unset: { userId: '' } },
+          { new: true },
+        )
+        .exec();
+
       if (!client) {
-        throw new NotFoundException(`Cliente con ID ${clientId} no encontrado o no asignado al usuario ${userId}`);
+        throw new NotFoundException(
+          `Cliente con ID ${clientId} no encontrado o no asignado al usuario ${userId}`,
+        );
       }
-  
+
       this.logger.log({
         message: `Client unassigned successfully`,
         clientId,
         userId,
         source,
       });
-  
+
       return client;
     } catch (error) {
       this.logger.error({

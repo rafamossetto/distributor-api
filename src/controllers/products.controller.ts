@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  InternalServerErrorException,
   Logger,
   Param,
   Post,
@@ -50,6 +51,49 @@ export class ProductsController {
     });
 
     return response;
+  }
+
+  @Get('user/:userId')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Obtener productos por ID de usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de productos del usuario especificado',
+    type: [Product],
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  async getProductsByUserId(
+    @Param('userId') userId: string,
+  ): Promise<Product[]> {
+    const source = 'ProductsController -> getProductsByUserId()';
+
+    this.logger.log({
+      message: `[REQ] GET /products/user/${userId} - getProductsByUserId()`,
+      source,
+      userId,
+    });
+
+    try {
+      const response = await this.productsService.getProductsByUserId(userId);
+
+      this.logger.log({
+        message: `[RES] GET /products/user/${userId} - getProductsByUserId()`,
+        length: response?.length,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] GET /products/user/${userId} - getProductsByUserId()`,
+        error,
+        source,
+      });
+      throw new InternalServerErrorException(
+        'Error al obtener los productos del usuario',
+      );
+    }
   }
 
   @Post()
@@ -135,29 +179,35 @@ export class ProductsController {
     type: Product,
   })
   @ApiResponse({ status: 403, description: 'Acceso denegado' })
-  @ApiResponse({ status: 404, description: 'Producto no encontrado o no asignado al usuario especificado' })
+  @ApiResponse({
+    status: 404,
+    description: 'Producto no encontrado o no asignado al usuario especificado',
+  })
   async unassignProductFromUser(
     @Param('productId') productId: string,
     @Param('userId') userId: string,
   ): Promise<Product> {
     const source = 'ProductsController -> unassignProductFromUser()';
-  
+
     this.logger.log({
       message: `[REQ] PUT /products/unassign/${productId}/${userId} - unassignProductFromUser()`,
       source,
       productId,
       userId,
     });
-  
+
     try {
-      const response = await this.productsService.unassignProductFromUser(productId, userId);
-  
+      const response = await this.productsService.unassignProductFromUser(
+        productId,
+        userId,
+      );
+
       this.logger.log({
         message: `[RES] PUT /products/unassign/${productId}/${userId} - unassignProductFromUser()`,
         response,
         source,
       });
-  
+
       return response;
     } catch (error) {
       this.logger.error({

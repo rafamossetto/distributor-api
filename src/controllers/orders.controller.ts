@@ -95,7 +95,9 @@ export class OrderController {
     status: 200,
     description: 'Get Buy Orders by Selected List',
   })
-  async getOrderBySelectedList(@Param('selectedList') selectedList: string): Promise<Order[]> {
+  async getOrderBySelectedList(
+    @Param('selectedList') selectedList: string,
+  ): Promise<Order[]> {
     const source = 'OrderController -> getOrderBySelectedList()';
 
     this.logger.log({
@@ -148,9 +150,52 @@ export class OrderController {
     };
   }
 
+  @Get('user/:userId')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Obtener órdenes por ID de usuario (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de órdenes del usuario especificado',
+    type: [Order],
+  })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  async getOrdersByUserId(@Param('userId') userId: string): Promise<Order[]> {
+    const source = 'OrdersController -> getOrdersByUserId()';
+
+    this.logger.log({
+      message: `[REQ] GET /orders/user/${userId} - getOrdersByUserId()`,
+      source,
+      userId,
+    });
+
+    try {
+      const response = await this.orderService.getOrdersByUserId(userId);
+
+      this.logger.log({
+        message: `[RES] GET /orders/user/${userId} - getOrdersByUserId()`,
+        length: response?.length,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] GET /orders/user/${userId} - getOrdersByUserId()`,
+        error,
+        source,
+      });
+      throw new InternalServerErrorException(
+        'Error al obtener las órdenes del usuario',
+      );
+    }
+  }
+
   @Delete(':id')
   @ApiResponse({ status: 200, description: 'Delete Order By Id' })
-  async deleteOrder(@Param('id') id: string): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  async deleteOrder(
+    @Param('id') id: string,
+  ): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const source = 'OrderController -> deleteOrder()';
 
     this.logger.log({
@@ -173,7 +218,10 @@ export class OrderController {
 
   @Delete()
   @ApiResponse({ status: 200, description: 'Delete All Orders' })
-  async deleteAllOrders(): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  async deleteAllOrders(): Promise<{
+    acknowledged: boolean;
+    deletedCount: number;
+  }> {
     const source = 'OrderController -> deleteAllOrders()';
 
     this.logger.log({
@@ -274,29 +322,35 @@ export class OrderController {
     type: Order,
   })
   @ApiResponse({ status: 403, description: 'Acceso denegado' })
-  @ApiResponse({ status: 404, description: 'Orden no encontrada o no asignada al usuario especificado' })
+  @ApiResponse({
+    status: 404,
+    description: 'Orden no encontrada o no asignada al usuario especificado',
+  })
   async unassignOrderFromUser(
     @Param('orderId') orderId: string,
     @Param('userId') userId: string,
   ): Promise<Order> {
     const source = 'OrderController -> unassignOrderFromUser()';
-  
+
     this.logger.log({
       message: `[REQ] PUT /orders/unassign/${orderId}/${userId} - unassignOrderFromUser()`,
       source,
       orderId,
       userId,
     });
-  
+
     try {
-      const response = await this.orderService.unassignOrderFromUser(orderId, userId);
-  
+      const response = await this.orderService.unassignOrderFromUser(
+        orderId,
+        userId,
+      );
+
       this.logger.log({
         message: `[RES] PUT /orders/unassign/${orderId}/${userId} - unassignOrderFromUser()`,
         response,
         source,
       });
-  
+
       return response;
     } catch (error) {
       this.logger.error({
@@ -306,5 +360,5 @@ export class OrderController {
       });
       throw error;
     }
-  }   
+  }
 }
