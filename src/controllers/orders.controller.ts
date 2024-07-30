@@ -18,6 +18,7 @@ import { OrderService } from 'src/services/orders.service';
 import { Order, Product } from 'src/schemas';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { AdminGuard } from 'src/auth/admin.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -28,7 +29,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Get('all')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @ApiOperation({ summary: 'Obtener todas las órdenes (solo admin)' })
   @ApiResponse({
     status: 200,
@@ -62,6 +63,44 @@ export class OrderController {
       });
       throw new InternalServerErrorException(
         'Error al obtener todas las órdenes',
+      );
+    }
+  }
+
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'Get user-assigned orders',
+    type: [Order],
+  })
+  async getUserOrders(@Req() req): Promise<Order[]> {
+    const source = 'OrderController -> getUserOrders()';
+    const userId = req.user.id;
+
+    this.logger.log({
+      message: '[REQ] GET /orders - getUserOrders()',
+      source,
+      userId,
+    });
+
+    try {
+      const response = await this.orderService.getOrdersByUserId(userId);
+
+      this.logger.log({
+        message: '[RES] GET /orders - getUserOrders()',
+        length: response?.length,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: '[ERR] GET /orders - getUserOrders()',
+        error,
+        source,
+      });
+      throw new InternalServerErrorException(
+        'Error al obtener las órdenes del usuario',
       );
     }
   }
