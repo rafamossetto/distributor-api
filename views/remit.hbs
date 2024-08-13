@@ -1,122 +1,220 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remito</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 18px;
-        }
-        .info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .info .left,
-        .info .right {
-            width: 48%;
-        }
-        .info .right {
-            text-align: right;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            border-bottom: 1px solid black;
-        }
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .signature {
-            text-align: center;
-            margin-top: 40px;
-        }
-        .signature div {
-            margin-bottom: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remito</title>
+  <style>
+    @page {
+      size: A4 portrait;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      font-size: 11px;
+    }
+
+    .container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .half-page {
+      height: 49%;
+      border-bottom: 1px dashed #000;
+      margin-bottom: 5px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.1em;
+    }
+
+    .info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .info .left,
+    .info .center,
+    .info .right {
+      width: 30%;
+    }
+
+    .info .center {
+      text-align: center;
+    }
+
+    .info .right {
+      text-align: right;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 5px;
+    }
+
+    th,
+    td {
+      padding: 3px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: bold;
+    }
+
+    .footer,
+    .signature {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+
+    .signature div {
+      margin-bottom: 10px;
+      /* Incrementado para más espacio */
+    }
+
+    .footer p,
+    .signature div {
+      margin: 8px;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Documento no valido como factura.</h1>
+  <div class="container">
+    <!-- Primera mitad de la página -->
+    <div class="half-page">
+      <div class="header">
+        <h1>Documento no valido como factura.</h1>
+      </div>
+      <div class="info">
+        <div class="left">
+          <p>Remito: {{remitNumber}}</p>
+          <p>Nombre: {{client}}</p>
+          <p>Dirección: {{address}}</p>
         </div>
-        <div class="info">
-            <div class="left">
-                <p>Remito: {{remitNumber}}</p>
-                <p>Nombre: {{client}}</p>
-                <p>Numero de cliente: {{clientNumber}}</p>
-                <p>Dirección: {{address}}</p>
-                <p>Teléfono: {{phoneNumber}}</p>
-            </div>
-            <div class="right">
-                <p>Fecha: {{date}}</p>
-                <p>Hora: {{hour}}</p>
-            </div>
+        <div class="center">
+          <p>Numero de cliente: {{clientNumber}}</p>
+          <p>Teléfono: {{phoneNumber}}</p>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Cod. Articulo</th>
-                    <th>Cantidad</th>
-                    <th>Descripcion</th>
-                    <th>Precio unitario</th>
-                    <th>Precio total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each items}}
-                <tr>
-                    <td>{{this.code}}</td>
-                    <td>{{this.quantity}}</td>
-                    <td>{{this.description}}</td>
-                    <td>{{this.unitPrice}}</td>
-                    <td>{{this.totalPrice}}</td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
-        <div class="footer">
-            <div>
-                <p>Son: {{amountInLetters}}</p>
-            </div>
-            <div>
-                <p>Subtotal: {{subTotal}}</p>
-                <p>Total: {{total}}</p>
-                <p>Total articulos: {{totalArticles}}</p>
-            </div>
+        <div class="right">
+          <p>Fecha: {{date}}</p>
+          <p>Hora: {{hour}}</p>
         </div>
-        <div class="signature">
-            <div>Firma: ______________________</div>
-            <div>Aclaracion: __________________</div>
-            <div>DNI: ________________________</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Cod. Articulo</th>
+            <th>Cantidad</th>
+            <th>Descripcion</th>
+            <th>Precio unitario</th>
+            <th>Precio total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each items}}
+          <tr>
+            <td>{{this.code}}</td>
+            <td>{{this.quantity}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.unitPrice}}</td>
+            <td>{{this.totalPrice}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="footer">
+        <div>
+          <p>Son: {{amountInLetters}}</p>
         </div>
+        <div>
+          <p>Subtotal: {{subTotal}}</p>
+          <p>Total: {{total}}</p>
+          <p>Total articulos: {{totalArticles}}</p>
+        </div>
+      </div>
+      <div class="signature">
+        <div>Firma: ___________________________</div>
+        <div>Aclaracion: _______________________</div>
+        <div>DNI: ____________________________</div>
+      </div>
     </div>
+
+    <!-- Segunda mitad de la página (duplicado) -->
+    <div class="half-page">
+      <div class="header">
+        <h1>Documento no valido como factura.</h1>
+      </div>
+      <div class="info">
+        <div class="left">
+          <p>Remito: {{remitNumber}}</p>
+          <p>Nombre: {{client}}</p>
+          <p>Dirección: {{address}}</p>
+        </div>
+        <div class="center">
+          <p>Numero de cliente: {{clientNumber}}</p>
+          <p>Teléfono: {{phoneNumber}}</p>
+        </div>
+        <div class="right">
+          <p>Fecha: {{date}}</p>
+          <p>Hora: {{hour}}</p>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Cod. Articulo</th>
+            <th>Cantidad</th>
+            <th>Descripcion</th>
+            <th>Precio unitario</th>
+            <th>Precio total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each items}}
+          <tr>
+            <td>{{this.code}}</td>
+            <td>{{this.quantity}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.unitPrice}}</td>
+            <td>{{this.totalPrice}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="footer">
+        <div>
+          <p>Son: {{amountInLetters}}</p>
+        </div>
+        <div>
+          <p>Subtotal: {{subTotal}}</p>
+          <p>Total: {{total}}</p>
+          <p>Total articulos: {{totalArticles}}</p>
+        </div>
+      </div>
+      <div class="signature">
+        <div>Firma: ___________________________</div>
+        <div>Aclaracion: _______________________</div>
+        <div>DNI: ____________________________</div>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
