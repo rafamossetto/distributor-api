@@ -83,13 +83,15 @@
       margin-top: 5px;
     }
 
-    .signature div {
+    .signature{
       margin-bottom: 10px;
-      /* Incrementado para más espacio */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
     }
 
-    .footer p,
-    .signature div {
+    .footer p {
       margin: 8px;
     }
   </style>
@@ -132,7 +134,7 @@
           <tr>
             <td>{{this.code}}</td>
             <td>{{this.quantity}}</td>
-            <td>{{this.description}}</td>
+            <td>{{this.name}}</td>
             <td>{{this.unitPrice}}</td>
             <td>{{this.totalPrice}}</td>
           </tr>
@@ -150,9 +152,9 @@
         </div>
       </div>
       <div class="signature">
-        <div>Firma: ___________________________</div>
-        <div>Aclaracion: _______________________</div>
-        <div>DNI: ____________________________</div>
+        <p>Firma: ___________________________</p>
+        <p>Aclaracion: _______________________</p>
+        <p>DNI: ____________________________</p>
       </div>
     </div>
 
@@ -209,9 +211,9 @@
         </div>
       </div>
       <div class="signature">
-        <div>Firma: ___________________________</div>
-        <div>Aclaracion: _______________________</div>
-        <div>DNI: ____________________________</div>
+        <p>Firma: ___________________________</p>
+        <p>Aclaracion: _______________________</p>
+        <p>DNI: ____________________________</p>
       </div>
     </div>
   </div>
