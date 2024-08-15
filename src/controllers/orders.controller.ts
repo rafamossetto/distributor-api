@@ -22,7 +22,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('orders')
 @ApiTags('orders')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
 
@@ -109,8 +109,8 @@ export class OrderController {
   @ApiResponse({ status: 201, description: 'Create Buy Order' })
   async createOrder(@Body() body: OrderDto, @Req() req): Promise<Order> {
     const source = 'OrderController -> createOrder()';
-    const userId = '192938';
-    // const userId = req.user.id;
+    // const userId = '192938';
+    const userId = req.user.id;
 
     this.logger.log({
       message: '[REQ] POST /orders - createOrder()',

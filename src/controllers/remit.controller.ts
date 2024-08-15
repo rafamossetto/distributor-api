@@ -1,17 +1,9 @@
-import {
-  Controller,
-  Get,
-  Logger,
-  Param,
-  Render,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Logger, Param, Render } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { OrderService } from 'src/services';
+import { convertirNumeroALetras } from 'src/utils/numberToLetters.util';
 
 @Controller('remits')
-// @UseGuards(JwtAuthGuard)
 @ApiTags('remits')
 export class RemitsController {
   private readonly logger = new Logger(RemitsController.name);
@@ -26,6 +18,7 @@ export class RemitsController {
     const selectedList = remit.selectedList;
 
     const total = remit.products.reduce((acc, el) => acc + el.prices[selectedList], 0);
+    const totalEnLetras = convertirNumeroALetras(total);
 
     return {
       remitNumber: remit.documentNumber,
@@ -38,15 +31,12 @@ export class RemitsController {
         unitPrice: p.prices[selectedList],
         totalPrice: p.prices[selectedList],
       })),
-      amountInLetter: 'Cincuenta mil pesos',
-      //   items: [
-      //     {code: 1, quantity: 1, description: 'leche', unitPrice: 123, totalPrice: 500}
-      // ]
-        subTotal: total,
-        total,
-        totalArticles: remit.products.length,
-        address: 'Zona sur',
-        phoneNumber: 3516969566
+      amountInLetter:totalEnLetras,
+      subTotal: total,
+      total,
+      totalArticles: remit.products.length,
+      address: remit.clientAddress,
+      phoneNumber: remit.clientPhone
     };
   }
 }

@@ -30,6 +30,12 @@ export class Order {
   clientName: string;
 
   @Prop({ required: true })
+  clientAddress: string;
+
+  @Prop({ required: true })
+  clientPhone: string;
+
+  @Prop({ required: true })
   clientNumber: number;
 
   @Prop({ required: true })
