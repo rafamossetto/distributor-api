@@ -30,69 +30,52 @@ export class ClientsController {
 
   constructor(private readonly clientsService: ClientsService) {}
 
-  @Get('all')
-  @UseGuards(AuthGuard('jwt'), AdminGuard)
-  @ApiOperation({ summary: 'Obtener todos los clientes (solo admin)' })
+  @Get()
+  @ApiOperation({ summary: 'Obtener todos los clientes' })
   @ApiResponse({
     status: 200,
-    description: 'Lista de todos los clientes',
+    description: 'Lista de todos los clientes (para administradores) o clientes del usuario',
     type: [Client],
   })
   @ApiResponse({ status: 403, description: 'Acceso denegado' })
-  async getAllClientsAdmin(): Promise<Client[]> {
-    const source = 'ClientsController -> getAllClientsAdmin()';
-
-    this.logger.log({
-      message: '[REQ] GET /clients/all - getAllClientsAdmin()',
-      source,
-    });
-
-    try {
-      const response = await this.clientsService.getAllClients();
-
-      this.logger.log({
-        message: '[RES] GET /clients/all - getAllClientsAdmin()',
-        length: response?.length,
-        source,
-      });
-
-      return response;
-    } catch (error) {
-      this.logger.error({
-        message: '[ERR] GET /clients/all - getAllClientsAdmin()',
-        error,
-        source,
-      });
-      throw new InternalServerErrorException(
-        'Error al obtener todos los clientes',
-      );
-    }
-  }
-
-  @Get()
-  @ApiResponse({
-    status: 200,
-    description: 'List All Clients - Sorted By Name A-Z',
-    type: [Client],
-  })
   async getAllClients(@Req() req): Promise<Client[]> {
     const source = 'ClientsController -> getAllClients()';
-
+  
     this.logger.log({
       message: '[REQ] GET /clients - getAllClients()',
       source,
     });
-
-    const response = await this.clientsService.getAllByUser(req.user.id);
-
-    this.logger.log({
-      message: '[RES] GET /clients - getAllClients()',
-      length: response?.length,
-      source,
-    });
-
-    return response;
+  
+    try {
+      let response: Client[];
+  
+      if (req.user.role === 'admin') {
+        // Si el usuario es administrador, obtener todos los clientes
+        response = await this.clientsService.getAllClients();
+      } else {
+        // Si no es administrador, obtener solo los clientes asociados al usuario
+        response = await this.clientsService.getAllByUser(req.user.id);
+      }
+  
+      this.logger.log({
+        message: '[RES] GET /clients - getAllClients()',
+        length: response?.length,
+        source,
+      });
+  
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: '[ERR] GET /clients - getAllClients()',
+        error,
+        source,
+      });
+      throw new InternalServerErrorException(
+        'Error al obtener los clientes',
+      );
+    }
   }
+  
 
   @Get('user/:userId')
   @UseGuards(AdminGuard)
