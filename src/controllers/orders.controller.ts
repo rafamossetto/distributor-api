@@ -172,11 +172,12 @@ export class OrderController {
     products: any;
     documentNumber: number;
     clientNumber: number;
+    clientName: string;
     date: string;
   }> {
     this.logger.log(`Obtaining order by ID: ${orderId}`);
     try {
-      const { products, date, documentNumber, clientNumber } =
+      const { products, date, documentNumber, clientNumber, clientName } =
         await this.orderService.getById(orderId);
 
       const translatedProducts = products.map((product) => ({
@@ -191,6 +192,7 @@ export class OrderController {
         products: translatedProducts,
         documentNumber,
         clientNumber,
+        clientName,
         date: date.toLocaleDateString('en-GB'),
       };
     } catch (error) {

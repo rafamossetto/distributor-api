@@ -20,12 +20,23 @@ async getRemit(@Param('id') remitId: string) {
   const items = remit.products.map(p => {
     const unitPrice = parseFloat(p.prices[selectedList].toFixed(2));
     const totalPrice = parseFloat((unitPrice * p.quantity).toFixed(2));
+    
+    let measurement;
+    if (p.measurement === 'unit') {
+      measurement = 'U.';
+    } else if (p.measurement === 'kilogram') {
+      measurement = 'KG.';
+    } else {
+      measurement = p.measurement; // Default por si viene otro valor
+    }
+  
     return {
       code: p.code,
       quantity: p.quantity,
       name: p.name,
       unitPrice,
       totalPrice,
+      measurement,
     };
   });
 
