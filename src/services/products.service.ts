@@ -146,12 +146,6 @@ export class ProductsService {
         throw new HttpException('Product not found', 404);
       }
 
-      if (product.userId !== userId) {
-        throw new ForbiddenException(
-          'You are not authorized to update this product',
-        );
-      }
-
       if (updateParams.price !== undefined) {
         const allPercentsList = (await this.pricesListModel.find().exec()).map(
           ({ percent }) => percent,
