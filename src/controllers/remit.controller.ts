@@ -11,53 +11,52 @@ export class RemitsController {
   constructor(private orderService: OrderService) {}
 
   @Get(':id')
-@Render('remit')
-@ApiResponse({ status: 200, description: 'Get Remit By Id' })
-async getRemit(@Param('id') remitId: string) {
-  const remit = await this.orderService.getById(remitId);
-  const selectedList = remit.selectedList;
+  @Render('remit')
+  @ApiResponse({ status: 200, description: 'Get Remit By Id' })
+  async getRemit(@Param('id') remitId: string) {
+    const remit = await this.orderService.getById(remitId);
+    const selectedList = remit.selectedList;
 
-  const items = remit.products.map(p => {
-    const unitPrice = parseFloat(p.prices[selectedList].toFixed(2));
-    const totalPrice = parseFloat((unitPrice * p.quantity).toFixed(2));
-    
-    let measurement;
-    if (p.measurement === 'unit') {
-      measurement = 'U.';
-    } else if (p.measurement === 'kilogram') {
-      measurement = 'KG.';
-    } else {
-      measurement = p.measurement; // Default por si viene otro valor
-    }
+    const items = remit.products.map(p => {
+      const unitPrice = parseFloat(p.prices[selectedList].toFixed(2));
+      const totalPrice = unitPrice * p.quantity;
+
+      let measurement;
+      if (p.measurement === 'unit') {
+        measurement = 'U.';
+      } else if (p.measurement === 'kilogram') {
+        measurement = 'KG.';
+      } else {
+        measurement = p.measurement; 
+      }
   
+      return {
+        code: p.code,
+        quantity: p.quantity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        name: p.name,
+        unitPrice: unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        totalPrice: totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        precioTotal: totalPrice, // Mantener como número para los cálculos
+        measurement,
+      };
+    });
+
+    const total = items.reduce((acc, el) => acc + el.precioTotal, 0); // precioTotal sigue siendo número
+    const totalEnLetras = convertirNumeroALetras(total);
+
     return {
-      code: p.code,
-      quantity: p.quantity,
-      name: p.name,
-      unitPrice,
-      totalPrice,
-      measurement,
+      remitNumber: remit.documentNumber,
+      client: remit.clientName,
+      clientNumber: remit.clientNumber,
+      date: remit.date.toLocaleDateString('en-GB'),
+      hour: remit.date.toISOString().split('T')[1].slice(0, 5),
+      items,
+      amountInLetter: totalEnLetras,
+      subTotal: total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 
+      total: total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      totalArticles: remit.products.length,
+      address: remit.clientAddress,
+      phoneNumber: remit.clientPhone,
     };
-  });
-
-  const total = parseFloat(
-    items.reduce((acc, el) => acc + el.totalPrice, 0).toFixed(2)
-  );
-  const totalEnLetras = convertirNumeroALetras(total);
-
-  return {
-    remitNumber: remit.documentNumber,
-    client: remit.clientName,
-    clientNumber: remit.clientNumber,
-    date: remit.date.toLocaleDateString('en-GB'),
-    hour: remit.date.toISOString().split('T')[1].slice(0, 5),
-    items,
-    amountInLetter: totalEnLetras,
-    subTotal: total,
-    total,
-    totalArticles: remit.products.length,
-    address: remit.clientAddress,
-    phoneNumber: remit.clientPhone,
-  };
-}
+  }
 }
