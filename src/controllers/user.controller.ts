@@ -1,5 +1,17 @@
-import { Controller, Put, Delete, Body, Param, Logger, NotFoundException, InternalServerErrorException, Get } from '@nestjs/common';
+import {
+  Controller,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Logger,
+  NotFoundException,
+  InternalServerErrorException,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AdminGuard } from 'src/auth/admin.guard';
 import { UserService } from 'src/services';
 
 @Controller('user')
@@ -11,7 +23,10 @@ export class UserController {
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
-  @ApiResponse({ status: 200, description: 'Lista de usuarios obtenida con éxito' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de usuarios obtenida con éxito',
+  })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async getAllUsers() {
     const source = 'UserController -> getAllUsers()';
@@ -92,7 +107,10 @@ export class UserController {
       selectedDate,
     });
 
-    const response = await this.userService.updateSelectedDate(username, selectedDate);
+    const response = await this.userService.updateSelectedDate(
+      username,
+      selectedDate,
+    );
 
     this.logger.log({
       message: `[RES] PUT /user/${username}/selectedDate - updateSelectedDate()`,
@@ -125,77 +143,128 @@ export class UserController {
   }
 
   @Put(':id/set-admin')
-@ApiOperation({ summary: 'Establecer usuario como administrador' })
-@ApiResponse({ status: 200, description: 'Usuario actualizado a administrador con éxito' })
-@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-@ApiResponse({ status: 500, description: 'Error interno del servidor' })
-async setUserAsAdmin(@Param('id') id: string) {
-  const source = 'UserController -> setUserAsAdmin()';
-
-  this.logger.log({
-    message: `[REQ] PUT /user/${id}/set-admin - setUserAsAdmin()`,
-    source,
-    id,
-  });
-
-  try {
-    const response = await this.userService.setUserAsAdmin(id);
+  @ApiOperation({ summary: 'Establecer usuario como administrador' })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuario actualizado a administrador con éxito',
+  })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async setUserAsAdmin(@Param('id') id: string) {
+    const source = 'UserController -> setUserAsAdmin()';
 
     this.logger.log({
-      message: `[RES] PUT /user/${id}/set-admin - setUserAsAdmin()`,
-      response,
+      message: `[REQ] PUT /user/${id}/set-admin - setUserAsAdmin()`,
       source,
+      id,
     });
 
-    return response;
-  } catch (error) {
-    this.logger.error({
-      message: `[ERR] PUT /user/${id}/set-admin - setUserAsAdmin()`,
-      error,
-      source,
-    });
-    if (error instanceof NotFoundException) {
-      throw error;
+    try {
+      const response = await this.userService.setUserAsAdmin(id);
+
+      this.logger.log({
+        message: `[RES] PUT /user/${id}/set-admin - setUserAsAdmin()`,
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] PUT /user/${id}/set-admin - setUserAsAdmin()`,
+        error,
+        source,
+      });
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al establecer usuario como administrador',
+      );
     }
-    throw new InternalServerErrorException('Error al establecer usuario como administrador');
   }
-}
 
-@Put(':id/update-name')
-@ApiOperation({ summary: 'Actualizar nombre de usuario' })
-@ApiResponse({ status: 200, description: 'Nombre de usuario actualizado con éxito' })
-@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-@ApiResponse({ status: 500, description: 'Error interno del servidor' })
-async updateUserName(@Param('id') id: string, @Body('name') name: string) {
-  const source = 'UserController -> updateUserName()';
-
-  this.logger.log({
-    message: `[REQ] PUT /user/${id}/update-name - updateUserName()`,
-    source,
-    id,
-    name,
-  });
-
-  try {
-    const response = await this.userService.updateUserName(id, name);
+  @Put(':id/update-name')
+  @ApiOperation({ summary: 'Actualizar nombre de usuario' })
+  @ApiResponse({
+    status: 200,
+    description: 'Nombre de usuario actualizado con éxito',
+  })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async updateUserName(@Param('id') id: string, @Body('name') name: string) {
+    const source = 'UserController -> updateUserName()';
 
     this.logger.log({
-      message: `[RES] PUT /user/${id}/update-name - updateUserName()`,
-      response,
+      message: `[REQ] PUT /user/${id}/update-name - updateUserName()`,
       source,
+      id,
+      name,
     });
 
-    return response;
-  } catch (error) {
-    this.logger.error({
-      message: `[ERR] PUT /user/${id}/update-name - updateUserName()`,
-      error,
-      source,
-    });
-    if (error instanceof NotFoundException) {
-      throw error;
+    try {
+      const response = await this.userService.updateUserName(id, name);
+
+      this.logger.log({
+        message: `[RES] PUT /user/${id}/update-name - updateUserName()`,
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] PUT /user/${id}/update-name - updateUserName()`,
+        error,
+        source,
+      });
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al actualizar el nombre del usuario',
+      );
     }
-    throw new InternalServerErrorException('Error al actualizar el nombre del usuario');
   }
-}
+
+  @Delete(':id')
+  @UseGuards(AdminGuard)
+  @ApiOperation({
+    summary: 'Eliminar usuario por ID (solo para administradores)',
+  })
+  @ApiResponse({ status: 200, description: 'Usuario eliminado con éxito' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async deleteUserById(@Param('id') id: string) {
+    const source = 'UserController -> deleteUserById()';
+
+    this.logger.log({
+      message: `[REQ] DELETE /user/${id} - deleteUserById()`,
+      source,
+      id,
+    });
+
+    try {
+      const response = await this.userService.deleteUserById(id);
+
+      this.logger.log({
+        message: `[RES] DELETE /user/${id} - deleteUserById()`,
+        response,
+        source,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error({
+        message: `[ERR] DELETE /user/${id} - deleteUserById()`,
+        error,
+        source,
+      });
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al eliminar el usuario');
+    }
+  }
 }

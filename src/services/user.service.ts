@@ -1,4 +1,9 @@
-import { HttpException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas';
@@ -49,22 +54,22 @@ export class UserService {
 
   async create(user: Partial<User>): Promise<UserDocument> {
     const source = 'UserService -> create()';
-  
+
     this.logger.log({
       message: `[REQ] create user ${user.username}`,
       source,
     });
-  
+
     try {
       const newUser = await new this.userModel(user).save();
       delete newUser.password;
-  
+
       this.logger.log({
         message: `[RES] create user ${user.username}`,
         response: newUser,
         source,
       });
-  
+
       return newUser;
     } catch (error) {
       this.logger.error({
@@ -106,7 +111,10 @@ export class UserService {
     }
   }
 
-  async updateSelectedDate(username: string, selectedDate: string): Promise<UserDocument> {
+  async updateSelectedDate(
+    username: string,
+    selectedDate: string,
+  ): Promise<UserDocument> {
     const source = 'UserService -> updateSelectedDate()';
 
     this.logger.log({
@@ -146,7 +154,11 @@ export class UserService {
 
     try {
       const response = await this.userModel
-        .findOneAndUpdate({ username }, { $unset: { selectedDate: "" } }, { new: true })
+        .findOneAndUpdate(
+          { username },
+          { $unset: { selectedDate: '' } },
+          { new: true },
+        )
         .exec();
 
       this.logger.log({
@@ -168,27 +180,27 @@ export class UserService {
 
   async setUserAsAdmin(userId: string): Promise<UserDocument> {
     const source = 'UserService -> setUserAsAdmin()';
-  
+
     this.logger.log({
       message: `[REQ] setUserAsAdmin ${userId}`,
       source,
     });
-  
+
     try {
       const updatedUser = await this.userModel
         .findByIdAndUpdate(userId, { role: 'admin' }, { new: true })
         .exec();
-  
+
       if (!updatedUser) {
         throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
       }
-  
+
       this.logger.log({
         message: `[RES] setUserAsAdmin ${userId}`,
         response: updatedUser,
         source,
       });
-  
+
       return updatedUser;
     } catch (error) {
       this.logger.error({
@@ -196,33 +208,36 @@ export class UserService {
         error,
         source,
       });
-      throw new HttpException(error.message, error instanceof NotFoundException ? 404 : 500);
+      throw new HttpException(
+        error.message,
+        error instanceof NotFoundException ? 404 : 500,
+      );
     }
   }
 
   async updateUserName(userId: string, name: string): Promise<UserDocument> {
     const source = 'UserService -> updateUserName()';
-  
+
     this.logger.log({
       message: `[REQ] updateUserName ${userId}`,
       source,
     });
-  
+
     try {
       const updatedUser = await this.userModel
         .findByIdAndUpdate(userId, { name }, { new: true })
         .exec();
-  
+
       if (!updatedUser) {
         throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
       }
-  
+
       this.logger.log({
         message: `[RES] updateUserName ${userId}`,
         response: updatedUser,
         source,
       });
-  
+
       return updatedUser;
     } catch (error) {
       this.logger.error({
@@ -230,7 +245,43 @@ export class UserService {
         error,
         source,
       });
-      throw new HttpException(error.message, error instanceof NotFoundException ? 404 : 500);
+      throw new HttpException(
+        error.message,
+        error instanceof NotFoundException ? 404 : 500,
+      );
+    }
+  }
+
+  async deleteUserById(id: string): Promise<{ message: string }> {
+    const source = 'UserService -> deleteUserById()';
+
+    this.logger.log({
+      message: `[REQ] deleteUserById ${id}`,
+      source,
+    });
+
+    try {
+      const user = await this.userModel.findByIdAndDelete(id).exec();
+      if (!user) {
+        throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      }
+
+      this.logger.log({
+        message: `[RES] deleteUserById ${id} - Usuario eliminado con éxito`,
+        source,
+      });
+
+      return { message: `Usuario con ID ${id} eliminado con éxito` };
+    } catch (error) {
+      this.logger.error({
+        message: `${source} - ${error.toString()}`,
+        error,
+        source,
+      });
+      throw new HttpException(
+        error.message,
+        error instanceof NotFoundException ? 404 : 500,
+      );
     }
   }
 }
