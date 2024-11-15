@@ -228,9 +228,8 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(AdminGuard)
   @ApiOperation({
-    summary: 'Eliminar usuario por ID (solo para administradores)',
+    summary: 'Eliminar usuario por ID',
   })
   @ApiResponse({ status: 200, description: 'Usuario eliminado con éxito' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
