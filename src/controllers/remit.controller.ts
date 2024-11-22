@@ -34,6 +34,8 @@ export class RemitsController {
         code: p.code,
         quantity: p.quantity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         name: p.name,
+        discount: p.discount !== undefined && p.discount !== null ? p.discount + " %" : '-',
+        units: p.units !== undefined && p.units !== null ? p.units + " KG" : '-',
         unitPrice: unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         totalPrice: totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         precioTotal: totalPrice, // Mantener como número para los cálculos

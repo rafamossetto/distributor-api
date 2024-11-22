@@ -8,7 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { ProductDto } from 'src/dto';
-import { PricesList, Product } from 'src/schemas';
+import { PricesList, Product, ProductMeasurementEnum } from 'src/schemas';
 import { getPricesWithPercent } from 'src/utils';
 
 @Injectable()
@@ -104,7 +104,11 @@ export class ProductsService {
     const source = 'ProductsService -> create()';
 
     try {
-      const { price: firstPrice, name, userId } = createProductDto;
+      const { price: firstPrice, name, userId, measurement, units } = createProductDto;
+
+      if (measurement === ProductMeasurementEnum.KILOGRAM && (!units || units <= 0)) {
+        throw new HttpException('Units must be specified for products measured in kilograms', 400);
+      }
 
       const allPercentsList = (await this.pricesListModel.find().exec()).map(
         ({ percent }) => percent,
@@ -139,6 +143,10 @@ export class ProductsService {
     userId: string,
   ): Promise<HydratedDocument<Product> | null> {
     const source = 'ProductsService -> update()';
+    
+    if (updateParams.measurement === ProductMeasurementEnum.KILOGRAM && (!updateParams.units || updateParams.units <= 0)) {
+      throw new HttpException('Units must be specified for products measured in kilograms', 400);
+    }
 
     try {
       const product = await this.productModel.findById(id).exec();

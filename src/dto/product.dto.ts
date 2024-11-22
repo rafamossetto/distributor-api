@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsString,
   IsOptional,
+  isNumber,
 } from 'class-validator';
 import { ProductMeasurementEnum } from 'src/schemas';
 
@@ -21,4 +22,8 @@ export class ProductDto {
 
   @IsNumber()
   price: number;
+
+  @IsOptional()
+  @IsNumber()
+  units: number;
 }

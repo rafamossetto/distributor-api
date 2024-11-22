@@ -8,7 +8,6 @@ export enum ProductMeasurementEnum {
   UNIT = 'unit',
 }
 
-// Validator Function
 const pricesValidator = (prices: number[]) =>
   prices.length && prices.every((price) => typeof price === 'number');
 
@@ -25,6 +24,12 @@ export class Product {
 
   @Prop()
   description: string;
+
+  @Prop()
+  units: number;
+
+  @Prop()
+  discount: number;
 
   @Prop({ required: true, default: 1 })
   quantity: number;
