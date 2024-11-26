@@ -19,17 +19,20 @@ export class RemitsController {
 
     const items = remit.products.map(p => {
       const unitPrice = parseFloat(p.prices[selectedList].toFixed(2));
-      const totalPrice = unitPrice * p.quantity;
+    
+      const amount = p.measurement === 'unit' ? p.quantity : (p.units ?? 0);
 
+      const totalPrice = unitPrice * amount;
+    
       let measurement;
       if (p.measurement === 'unit') {
         measurement = 'U.';
       } else if (p.measurement === 'kilogram') {
         measurement = 'KG.';
       } else {
-        measurement = p.measurement; 
+        measurement = p.measurement;
       }
-  
+    
       return {
         code: p.code,
         quantity: p.quantity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
