@@ -20,8 +20,14 @@ export class RemitsController {
     const items = remit.products.map(p => {
       const unitPrice = parseFloat(p.prices[selectedList].toFixed(2));
     
-      const amount = p.measurement === 'unit' ? p.quantity : (p.units ?? 0);
-
+      // Determinar cantidad basada en la medición y valores disponibles
+      const amount = 
+        p.measurement === 'unit'
+          ? p.quantity
+          : p.measurement === 'kilogram' && (p.units === undefined || p.units === null)
+          ? p.quantity
+          : p.units ?? 0;
+    
       const totalPrice = unitPrice * amount;
     
       let measurement;
@@ -45,6 +51,7 @@ export class RemitsController {
         measurement,
       };
     });
+    
 
     const total = items.reduce((acc, el) => acc + el.precioTotal, 0); // precioTotal sigue siendo número
     const totalEnLetras = convertirNumeroALetras(total);
