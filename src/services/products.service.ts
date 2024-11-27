@@ -106,10 +106,6 @@ export class ProductsService {
     try {
       const { price: firstPrice, name, userId, measurement, units } = createProductDto;
 
-      if (measurement === ProductMeasurementEnum.KILOGRAM && (!units || units <= 0)) {
-        throw new HttpException('Units must be specified for products measured in kilograms', 400);
-      }
-
       const allPercentsList = (await this.pricesListModel.find().exec()).map(
         ({ percent }) => percent,
       );
