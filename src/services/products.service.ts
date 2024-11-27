@@ -143,10 +143,6 @@ export class ProductsService {
     userId: string,
   ): Promise<HydratedDocument<Product> | null> {
     const source = 'ProductsService -> update()';
-    
-    if (updateParams.measurement === ProductMeasurementEnum.KILOGRAM && (!updateParams.units || updateParams.units <= 0)) {
-      throw new HttpException('Units must be specified for products measured in kilograms', 400);
-    }
 
     try {
       const product = await this.productModel.findById(id).exec();
