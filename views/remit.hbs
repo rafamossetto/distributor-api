@@ -94,6 +94,14 @@
     .footer p {
       margin: 8px;
     }
+
+    .referendum{
+      flex-direction: row;
+      justify-content: start;
+      align-items: start;
+      display: flex;
+      width: 100%;
+    }
   </style>
 </head>
 
@@ -151,16 +159,16 @@
         <div>
           <p>Subtotal: {{subTotal}}</p>
           <p>Total: {{total}}</p>
-          {{!-- <p>Primer Vencimiento: {{firstExpirationDate}} (3%) - ${{firstTotal}}</p>
-          <p>Segundo Vencimiento: {{secondExpirationDate}} (6%) - ${{secondTotal}}</p>
-          <p>Tercer Vencimiento: {{thirdExpirationDate}} (15%) - ${{thirdTotal}}</p> --}}
+          <p>1er Venc.: {{firstExpirationDate}} - ${{total}}</p>
+          <p>2do Venc.: {{secondExpirationDate}} - ${{secondTotal}}</p>
+          <p>3er Venc.: {{thirdExpirationDate}} - ${{thirdTotal}}</p>
           <p>Total articulos: {{totalArticles}}</p>
         </div>
       </div>
       <div class="signature">
-        <p>Firma: ___________________________</p>
-        <p>Aclaracion: _______________________</p>
-        <p>DNI: ____________________________</p>
+        <div class="referendum">
+        <p>Luego de 16 dias desde la fecha de entrega, el vencimiento va a incrementar un 15% del total de la factura</p>
+        </div>
       </div>
     </div>
 
@@ -216,9 +224,9 @@
         <div>
           <p>Subtotal: {{subTotal}}</p>
           <p>Total: {{total}}</p>
-          {{!-- <p>Primer Vencimiento: {{firstExpirationDate}} (3%) - ${{firstTotal}}</p>
-          <p>Segundo Vencimiento: {{secondExpirationDate}} (6%) - ${{secondTotal}}</p>
-          <p>Tercer Vencimiento: {{thirdExpirationDate}} (15%) - ${{thirdTotal}}</p> --}}
+          <p>1er Venc.: {{firstExpirationDate}} - ${{total}}</p>
+          <p>2do Venc.: {{secondExpirationDate}} - ${{secondTotal}}</p>
+          <p>3er Venc.: {{thirdExpirationDate}} - ${{thirdTotal}}</p>
           <p>Total articulos: {{totalArticles}}</p>
         </div>
       </div>
@@ -226,6 +234,9 @@
         <p>Firma: ___________________________</p>
         <p>Aclaracion: _______________________</p>
         <p>DNI: ____________________________</p>
+        <div class="referendum">
+        <p>Luego de 16 dias desde la fecha de entrega, el vencimiento va a incrementar un 15% del total de la factura</p>
+        </div>
       </div>
     </div>
   </div>

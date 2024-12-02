@@ -54,13 +54,12 @@ export class RemitsController {
     const total = items.reduce((acc, el) => acc + el.precioTotal, 0);
     const totalEnLetras = convertirNumeroALetras(total);
   
-    // Convertir la fecha de entrega (string) a Date
     let deliveryDate: Date;
     if (typeof remit.deliveryDate === 'string') {
       const [day, month, year] = remit.deliveryDate.split('/').map(Number);
-      deliveryDate = new Date(year, month - 1, day); // Meses en JavaScript empiezan desde 0
+      deliveryDate = new Date(year, month - 1, day); 
     } else {
-      deliveryDate = new Date(remit.deliveryDate); // Por si ya es un objeto Date
+      deliveryDate = new Date(remit.deliveryDate); 
     }
   
     function addDays(date: Date, days: number) {
@@ -75,18 +74,17 @@ export class RemitsController {
         .padStart(2, '0')}/${date.getFullYear()}`;
     }
   
-    const firstExpiration = addDays(deliveryDate, 7);
-    const secondExpiration = addDays(deliveryDate, 15);
-    const thirdExpiration = addDays(deliveryDate, 30);
+    const firstExpiration = addDays(deliveryDate, 1);
+    const secondExpiration = addDays(deliveryDate, 8);
+    const thirdExpiration = addDays(deliveryDate, 16);
   
     const firstExpirationDate = formatDate(firstExpiration);
     const secondExpirationDate = formatDate(secondExpiration);
     const thirdExpirationDate = formatDate(thirdExpiration);
   
-    // Calcular totales con aumentos
     const firstTotal = total * 1.03; // 3% aumento
-    const secondTotal = total * 1.06; // 6% aumento
-    const thirdTotal = total * 1.15; // 15% aumento
+    const secondTotal = total * 1.03; // 3% aumento
+    const thirdTotal = total * 1.06; // 6% aumento
   
     return {
       remitNumber: remit.documentNumber,
