@@ -179,15 +179,18 @@ export class OrderController {
     try {
       const { products, date, documentNumber, clientNumber, clientName } =
         await this.orderService.getById(orderId);
-
-      const translatedProducts = products.map((product) => ({
-        ...product,
-        name: product.name,
-        quantity: product.quantity,
-        code: product.code,
-        measurement: translateMeasurement(product.measurement),
-      }));
-
+  
+      const translatedProducts = products.map((product) => {
+        const isKilogram = product.measurement === 'kilogram';
+        return {
+          ...product,
+          name: product.name,
+          code: product.code,
+          measurement: translateMeasurement(product.measurement),
+          quantity: isKilogram ? product.units : product.quantity,
+        };
+      });
+  
       return {
         products: translatedProducts,
         documentNumber,
@@ -202,6 +205,7 @@ export class OrderController {
       );
     }
   }
+  
 
   @Get('user/:userId')
   @UseGuards(JwtAuthGuard)
