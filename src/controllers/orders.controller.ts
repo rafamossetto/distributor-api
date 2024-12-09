@@ -181,12 +181,13 @@ export class OrderController {
         await this.orderService.getById(orderId);
   
       const translatedProducts = products.map((product) => {
+        const isKilogram = product.measurement === 'kilogram';
         return {
           ...product,
           name: product.name,
           code: product.code,
           measurement: translateMeasurement(product.measurement),
-          quantity: product.quantity,
+          quantity: isKilogram ? product.units : product.quantity,
         };
       });
   
