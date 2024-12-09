@@ -31,7 +31,7 @@ export class Product {
   @Prop()
   discount: number;
 
-  @Prop({ required: true, default: 1 })
+  @Prop()
   quantity: number;
 
   @Prop({

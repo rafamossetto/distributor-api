@@ -16,19 +16,13 @@ export class RemitsController {
   async getRemit(@Param('id') remitId: string) {
     const remit = await this.orderService.getById(remitId);
     const selectedList = remit.selectedList;
-  
     const items = remit.products.map(p => {
       const unitPrice = parseFloat(p.prices[selectedList].toFixed(2));
   
-      const amount =
-        p.measurement === 'unit'
-          ? p.quantity
-          : p.measurement === 'kilogram' && (p.units === undefined || p.units === null)
-          ? p.quantity
-          : p.units ?? 0;
+      const totalPrice = unitPrice * p.quantity;
   
-      const totalPrice = unitPrice * amount;
-  
+      const isKilogram = p.units !== 0
+
       let measurement;
       if (p.measurement === 'unit') {
         measurement = 'U.';
@@ -40,10 +34,10 @@ export class RemitsController {
   
       return {
         code: p.code,
-        quantity: p.quantity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        quantity: isKilogram ? p.units.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : p.quantity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         name: p.name,
         discount: p.discount !== undefined && p.discount !== null ? p.discount + " %" : '-',
-        units: p.units !== undefined && p.units !== null ? p.units + " KG" : '-',
+        units: p.quantity !== undefined && p.units !== null ? p.quantity + " KG" : '-',
         unitPrice: unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         totalPrice: totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         precioTotal: totalPrice, 
