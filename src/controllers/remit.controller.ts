@@ -17,33 +17,33 @@ export class RemitsController {
     const remit = await this.orderService.getById(remitId);
     const selectedList = remit.selectedList;
     const items = remit.products.map(p => {
-      const unitPrice = parseFloat(p.prices[selectedList].toFixed(2));
-  
-      const totalPrice = unitPrice * p.quantity;
-  
-      const isKilogram = p.units !== 0
-
-      let measurement;
-      if (p.measurement === 'unit') {
-        measurement = 'U.';
-      } else if (p.measurement === 'kilogram') {
-        measurement = 'KG.';
-      } else {
-        measurement = p.measurement;
+      const unitPrice = p.prices?.[selectedList];
+      if (unitPrice === undefined || isNaN(unitPrice)) {
+        this.logger.error(`Invalid price for product: ${JSON.stringify(p)}`);
+        return null;
       }
-  
+    
+      const formattedUnitPrice = parseFloat(unitPrice.toFixed(2));
+      const totalPrice = formattedUnitPrice * p.quantity;
+    
+      const isKilogram = p.measurement === 'kilogram';
+      const measurement = p.measurement === 'unit' ? 'U.' : isKilogram ? 'KG.' : p.measurement;
       return {
         code: p.code,
-        quantity: isKilogram ? p.units.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : p.quantity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        quantity: isKilogram
+          ? (p.units || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          : p.quantity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         name: p.name,
-        discount: p.discount !== undefined && p.discount !== null ? p.discount + " %" : '-',
-        units: p.quantity !== undefined && p.units !== null ? p.quantity + " KG" : '-',
-        unitPrice: unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        discount: p.discount !== undefined && p.discount !== null ? `${p.discount} %` : '-',
+        units: isKilogram ? `${p.quantity || 0} KG` : '-',
+        unitPrice: formattedUnitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         totalPrice: totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        precioTotal: totalPrice, 
+        precioTotal: totalPrice,
         measurement,
       };
-    });
+    }).filter(item => item !== null);
+    
+    
   
     const total = items.reduce((acc, el) => acc + el.precioTotal, 0);
     const totalEnLetras = convertirNumeroALetras(total);
