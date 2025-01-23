@@ -34,6 +34,9 @@ export class Product {
   @Prop()
   quantity: number;
 
+  @Prop()
+  estimate: number;
+
   @Prop({
     required: true,
     validate: {
