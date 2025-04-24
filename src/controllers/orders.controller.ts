@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Render,
   Req,
   SetMetadata,
@@ -16,7 +17,7 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderDto } from 'src/dto';
 import { OrderService } from 'src/services/orders.service';
-import { Order, Product } from 'src/schemas';
+import { Order } from 'src/schemas';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { AdminGuard } from 'src/auth/admin.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -32,82 +33,33 @@ export class OrderController {
 
   @Get('all')
   @UseGuards(AuthGuard('jwt'), AdminGuard)
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Obtener todas las órdenes (solo admin)' })
+  @ApiOperation({ summary: 'Obtener todas las órdenes (solo admin) con paginación' })
   @ApiResponse({
     status: 200,
-    description: 'Lista de todas las órdenes',
-    type: [Order],
+    description: 'Lista paginada de órdenes',
   })
-  @ApiResponse({ status: 403, description: 'Acceso denegado' })
-  async getAllOrdersAdmin(): Promise<Order[]> {
-    const source = 'OrderController -> getAllOrdersAdmin()';
-
-    this.logger.log({
-      message: '[REQ] GET /orders/all - getAllOrdersAdmin()',
-      source,
-    });
-
+  async getAllOrdersAdmin(
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('search') search = '',
+  ): Promise<{
+    data: Order[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const p = parseInt(page, 10);
+    const l = parseInt(limit, 10);
+    this.logger.log(`[REQ] GET /orders/all?page=${p}&limit=${l}&search=${search}`);
     try {
-      const response = await this.orderService.getAllOrders();
-
-      this.logger.log({
-        message: '[RES] GET /orders/all - getAllOrdersAdmin()',
-        length: response?.length,
-        source,
-      });
-
-      return response;
-    } catch (error) {
-      this.logger.error({
-        message: '[ERR] GET /orders/all - getAllOrdersAdmin()',
-        error,
-        source,
-      });
-      throw new InternalServerErrorException(
-        'Error al obtener todas las órdenes',
-      );
+      return await this.orderService.getPaginatedOrders(p, l, undefined, search);
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException('Error al obtener todas las órdenes');
     }
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiResponse({
-    status: 200,
-    description: 'Get user-assigned orders',
-    type: [Order],
-  })
-  async getUserOrders(@Req() req): Promise<Order[]> {
-    const source = 'OrderController -> getUserOrders()';
-    const userId = req.user.id;
-
-    this.logger.log({
-      message: '[REQ] GET /orders - getUserOrders()',
-      source,
-      userId,
-    });
-
-    try {
-      const response = await this.orderService.getOrdersByUserId(userId);
-
-      this.logger.log({
-        message: '[RES] GET /orders - getUserOrders()',
-        length: response?.length,
-        source,
-      });
-
-      return response;
-    } catch (error) {
-      this.logger.error({
-        message: '[ERR] GET /orders - getUserOrders()',
-        error,
-        source,
-      });
-      throw new InternalServerErrorException(
-        'Error al obtener las órdenes del usuario',
-      );
-    }
-  }
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -374,6 +326,27 @@ export class OrderController {
     }
   }
 
+  @Get()  
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, description: 'Get paginated user orders' })
+  async getUserOrders(
+    @Req() req,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('search') search = '',
+  ) {
+    const userId = req.user.id;
+    const p = parseInt(page, 10);
+    const l = parseInt(limit, 10);
+    this.logger.log(`[REQ] GET /orders?page=${p}&limit=${l}&search=${search}`);
+    try {
+      return await this.orderService.getPaginatedOrders(p, l, userId, search);
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException('Error al obtener órdenes');
+    }
+  }
+  
   @Put('unassign/:orderId/:userId')
   @UseGuards(JwtAuthGuard)
   @UseGuards(JwtAuthGuard, AdminGuard)

@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { OrderDto } from 'src/dto/order.dto';
-import { Order } from 'src/schemas';
+import { Order, OrderDocument } from 'src/schemas';
 
 @Injectable()
 export class OrderService {
@@ -17,7 +17,7 @@ export class OrderService {
 
   private readonly GET_ALL_SORT_PARAM = 'name';
 
-  getAll(userId: string): Promise<HydratedDocument<Order>[]> {
+  getAll(): Promise<HydratedDocument<Order>[]> {
     const source = 'OrderService -> getAll()';
 
     try {
@@ -29,6 +29,52 @@ export class OrderService {
         source,
       });
       throw new HttpException(error.toString(), 500);
+    }
+  }
+
+  async getPaginatedOrders(
+    page = 1,
+    limit = 10,
+    userId?: string,
+    search?: string,
+  ): Promise<{
+    data: OrderDocument[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const source = 'OrderService -> getPaginatedOrders()';
+    try {
+      // 1) Armar filtro
+      const filter: FilterQuery<Order> = {};
+      if (userId) filter.userId = userId;
+      if (search) {
+        // Búsqueda insensible a mayúsculas en clientName
+        filter.clientName = { $regex: search, $options: 'i' };
+      }
+
+      // 2) Contar TOTAL con filtro
+      const total = await this.orderModel.countDocuments(filter).exec();
+
+      // 3) Obtener página
+      const data = await this.orderModel
+        .find(filter)
+        .sort({ documentNumber: 1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec();
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      this.logger.error({ message: `${source} - ${error}`, error, source });
+      throw new HttpException('Error al paginar órdenes', 500);
     }
   }
 
