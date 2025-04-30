@@ -15,28 +15,14 @@ export class OrderService {
 
   constructor(@InjectModel(Order.name) private orderModel: Model<Order>) {}
 
-  private readonly GET_ALL_SORT_PARAM = 'name';
-
-  getAll(): Promise<HydratedDocument<Order>[]> {
-    const source = 'OrderService -> getAll()';
-
-    try {
-      return this.orderModel.find().sort(this.GET_ALL_SORT_PARAM).exec();
-    } catch (error) {
-      this.logger.error({
-        message: `${source} - ${error.toString()}`,
-        error,
-        source,
-      });
-      throw new HttpException(error.toString(), 500);
-    }
-  }
-
   async getPaginatedOrders(
     page = 1,
     limit = 10,
     userId?: string,
     search?: string,
+    startDate?: string,
+    endDate?: string,
+    dateField: 'creation' | 'delivery' = 'creation',
   ): Promise<{
     data: OrderDocument[];
     total: number;
@@ -46,18 +32,22 @@ export class OrderService {
   }> {
     const source = 'OrderService -> getPaginatedOrders()';
     try {
-      // 1) Armar filtro
       const filter: FilterQuery<Order> = {};
+
       if (userId) filter.userId = userId;
-      if (search) {
-        // Búsqueda insensible a mayúsculas en clientName
-        filter.clientName = { $regex: search, $options: 'i' };
+      if (search) filter.clientName = { $regex: search, $options: 'i' };
+
+      // filtro por fecha
+      const field = dateField === 'creation' ? 'date' : 'deliveryDate';
+      if (startDate && endDate) {
+        filter[field] = {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        };
       }
 
-      // 2) Contar TOTAL con filtro
       const total = await this.orderModel.countDocuments(filter).exec();
 
-      // 3) Obtener página
       const data = await this.orderModel
         .find(filter)
         .sort({ documentNumber: 1 })

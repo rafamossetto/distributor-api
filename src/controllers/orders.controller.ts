@@ -33,7 +33,9 @@ export class OrderController {
 
   @Get('all')
   @UseGuards(AuthGuard('jwt'), AdminGuard)
-  @ApiOperation({ summary: 'Obtener todas las órdenes (solo admin) con paginación' })
+  @ApiOperation({
+    summary: 'Obtener todas las órdenes (solo admin) con paginación',
+  })
   @ApiResponse({
     status: 200,
     description: 'Lista paginada de órdenes',
@@ -42,6 +44,9 @@ export class OrderController {
     @Query('page') page = '1',
     @Query('limit') limit = '10',
     @Query('search') search = '',
+    @Query('startDate') startDate = '',
+    @Query('endDate') endDate = '',
+    @Query('dateField') dateField: 'creation' | 'delivery' = 'creation',
   ): Promise<{
     data: Order[];
     total: number;
@@ -51,15 +56,26 @@ export class OrderController {
   }> {
     const p = parseInt(page, 10);
     const l = parseInt(limit, 10);
-    this.logger.log(`[REQ] GET /orders/all?page=${p}&limit=${l}&search=${search}`);
+    this.logger.log(
+      `[REQ] GET /orders/all?page=${p}&limit=${l}&search=${search}&startDate=${startDate}&endDate=${endDate}&dateField=${dateField}`,
+    );
     try {
-      return await this.orderService.getPaginatedOrders(p, l, undefined, search);
+      return await this.orderService.getPaginatedOrders(
+        p,
+        l,
+        undefined,
+        search,
+        startDate,
+        endDate,
+        dateField,
+      );
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('Error al obtener todas las órdenes');
+      throw new InternalServerErrorException(
+        'Error al obtener todas las órdenes',
+      );
     }
   }
-
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -118,9 +134,7 @@ export class OrderController {
   @UseGuards(PublicGuard)
   @Render('order')
   @ApiResponse({ status: 200, description: 'Get Buy Order By Id' })
-  async getOrder(
-    @Param('id') orderId: string,
-  ): Promise<{
+  async getOrder(@Param('id') orderId: string): Promise<{
     products: any;
     documentNumber: number;
     clientNumber: number;
@@ -131,7 +145,7 @@ export class OrderController {
     try {
       const { products, date, documentNumber, clientNumber, clientName } =
         await this.orderService.getById(orderId);
-  
+
       const translatedProducts = products.map((product) => {
         const isKilogram = product.measurement === 'kilogram';
         return {
@@ -142,7 +156,7 @@ export class OrderController {
           quantity: isKilogram ? product.units : product.quantity,
         };
       });
-  
+
       return {
         products: translatedProducts,
         documentNumber,
@@ -157,7 +171,6 @@ export class OrderController {
       );
     }
   }
-  
 
   @Get('user/:userId')
   @UseGuards(JwtAuthGuard)
@@ -326,7 +339,7 @@ export class OrderController {
     }
   }
 
-  @Get()  
+  @Get()
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, description: 'Get paginated user orders' })
   async getUserOrders(
@@ -334,19 +347,32 @@ export class OrderController {
     @Query('page') page = '1',
     @Query('limit') limit = '10',
     @Query('search') search = '',
+    @Query('startDate') startDate = '',
+    @Query('endDate') endDate = '',
+    @Query('dateField') dateField: 'creation' | 'delivery' = 'creation',
   ) {
     const userId = req.user.id;
     const p = parseInt(page, 10);
     const l = parseInt(limit, 10);
-    this.logger.log(`[REQ] GET /orders?page=${p}&limit=${l}&search=${search}`);
+    this.logger.log(
+      `[REQ] GET /orders?page=${p}&limit=${l}&search=${search}&startDate=${startDate}&endDate=${endDate}&dateField=${dateField}`,
+    );
     try {
-      return await this.orderService.getPaginatedOrders(p, l, userId, search);
+      return await this.orderService.getPaginatedOrders(
+        p,
+        l,
+        userId,
+        search,
+        startDate,
+        endDate,
+        dateField,
+      );
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('Error al obtener órdenes');
     }
   }
-  
+
   @Put('unassign/:orderId/:userId')
   @UseGuards(JwtAuthGuard)
   @UseGuards(JwtAuthGuard, AdminGuard)
