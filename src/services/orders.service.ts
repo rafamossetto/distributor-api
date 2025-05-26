@@ -37,13 +37,48 @@ export class OrderService {
       if (userId) filter.userId = userId;
       if (search) filter.clientName = { $regex: search, $options: 'i' };
 
-      // filtro por fecha
-      const field = dateField === 'creation' ? 'date' : 'deliveryDate';
       if (startDate && endDate) {
-        filter[field] = {
-          $gte: new Date(startDate),
-          $lte: new Date(endDate),
-        };
+        if (dateField === 'creation') {
+          // Campo tipo Date
+          filter.date = {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          };
+        } else if (dateField === 'delivery') {
+          // Campo string, usamos $expr para convertirlo dinámicamente
+          const [startYear, startMonth, startDay] = startDate.split('-');
+          const [endYear, endMonth, endDay] = endDate.split('-');
+
+          const start = new Date(`${startYear}-${startMonth}-${startDay}`);
+          const end = new Date(`${endYear}-${endMonth}-${endDay}`);
+
+          filter.$expr = {
+            $and: [
+              {
+                $gte: [
+                  {
+                    $dateFromString: {
+                      dateString: '$deliveryDate',
+                      format: '%d/%m/%Y',
+                    },
+                  },
+                  start,
+                ],
+              },
+              {
+                $lte: [
+                  {
+                    $dateFromString: {
+                      dateString: '$deliveryDate',
+                      format: '%d/%m/%Y',
+                    },
+                  },
+                  end,
+                ],
+              },
+            ],
+          };
+        }
       }
 
       const total = await this.orderModel.countDocuments(filter).exec();

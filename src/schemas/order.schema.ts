@@ -39,14 +39,14 @@ export class Order {
   clientNumber: number;
 
   @Prop({ required: true })
-  selectedList: number; 
+  selectedList: number;
 
   @Prop({ required: true, type: String })
   userId: string;
 
   @Prop({ type: String })
   deliveryDate: string;
-  
+
   @Prop({ type: String })
   description: string;
 }
